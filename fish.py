@@ -141,7 +141,7 @@ def shop():
     
     # Create an embed with relevant information
     embed=discord.Embed(title="Shop", description="Everything's for sale.", color=0x58abdf)
-    embed.set_thumbnail(url="https://media.discordapp.net/attachments/966488795065229342/1098599127308316712/IMG_8414.png?width=612&height=701")
+    embed.set_thumbnail(url="https://media.discordapp.net/attachments/966488795065229342/1098653939240538203/IMG_8414.png?width=612&height=701")
     for item in data:
         name = item.get("name", "temp")
         desc = item.get("desc", "temp")
@@ -159,7 +159,11 @@ def buy(index, user, shop_data, buff, to_increase, increase_by):
     else:
         # Otherwise decrease their money and give them whatever they bought
         user["money"] -= price
-        to_increase += increase_by
+        if to_increase == "rod":
+            user["rod"] += increase_by
+        elif to_increase == "bait":
+            user["bait_power"] += increase_by
+            user["bait_duration"] += 5
         if to_increase is user["bait_power"]:
             user["bait_duration"] += 5
         with open("meta/user_buffs.json", "w") as buffs:

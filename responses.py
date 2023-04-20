@@ -124,11 +124,11 @@ def handle_response(message, user_id: int, server, event_type, **kwargs):
                     for user in data:
                         if user.get("id") == user_id:
                             break
-                username = args.get("username")
-                avatar = args.get("user").avatar.url
-                rod = user.get("rod")
-                fish_count = len(inv.readlines())
-                money = user.get("money")
+                    username = args.get("username")
+                    avatar = args.get("user").avatar.url
+                    rod = user.get("rod")
+                    fish_count = len(inv.readlines())
+                    money = user.get("money")
                 
                 embedVar = discord.Embed(title=f"**{username}**", color=0x58abdf)
                 embedVar.set_thumbnail(url=avatar)
@@ -352,13 +352,13 @@ that starts at {start} and ends at {end}"}])
                     match message:
                         # Pass relevant information to fish.py
                         case "1️⃣":
-                            reply = fish.buy(0, user, shop_data, buff, [user["rod"]], 1)
+                            reply = fish.buy(0, user, shop_data, buff, "rod", 1)
                             return([{"type":"message","message":reply}, {"type":"react", "react":message, "add":False}])
                         case "2️⃣":
-                            reply = fish.buy(1, user, shop_data, buff, [user["bait_power"]], 1)
+                            reply = fish.buy(1, user, shop_data, buff, "bait", 1)
                             return([{"type":"message","message":reply}, {"type":"react", "react":message, "add":False}])
                         case "3️⃣":
-                            reply = fish.buy(2, user, shop_data, buff, [user["bait_power"]], 2)
+                            reply = fish.buy(2, user, shop_data, buff, "bait", 2)
                             return([{"type":"message","message":reply}, {"type":"react", "react":message, "add":False}])
                         case "4️⃣":
                             return([{"type":"message","message":"Out of stock"}, {"type":"react", "react":message, "add":False}])
