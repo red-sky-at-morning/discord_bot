@@ -1,0 +1,20 @@
+[
+    {
+        "name":"Fishing Rod Upgrade",
+        "price":100,
+        "desc":"Upgrades your fishing rod one tier. \nMakes you more likely to get rare loot.",
+        "id":1
+    },
+    {
+        "name":"Fishing Bait: Tier 1",
+        "price":"50",
+        "desc":"Gives you a boost to fishing for 5 casts. \nMakes you more likely to get rare loot.",
+        "id":2
+    },
+    {
+        "name":"Fishing Bait: Tier 2",
+        "price":"75",
+        "desc":"Gives you a boost to fishing for 5 casts. \nMakes you more likely to get rare loot.",
+        "id":3
+    }
+]

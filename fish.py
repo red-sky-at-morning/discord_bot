@@ -1,11 +1,12 @@
 import random
 import json
+import discord.embeds
 # List of minecraft potion effects for random potions
 effects = ('speed','slowness','haste','mining fatigue','strength','instant health','instant damage','jump boost','nausea','regeneration','resistance','fire resistance','water breathing','invisibility','blindness','night vision','hunger','weakness','poison',
            'wither','health boost','absorption','saturation','glowing','levitation','luck','bad luck','slow falling','conduit power','dolphin\'s grace','bad omen','hero of the village','darkness')
-# Load list of fish for random fish
 banned_users = (771802284929056769, 409071383004446720, 762031037852418058)
 
+# Load list of fish for random fish
 with open('meta/list_of_fish.txt','r') as fish:
     fish_list = []
     for line in fish.readlines():
@@ -23,6 +24,7 @@ def start_fish(user_id):
     
     for user in data:
         print(user)
+        # Get what item in data actually corresponds to the user
         if user_id == user.get("id", 0):
             print("passed")
             user_rod = user["rod"]/10
@@ -30,10 +32,12 @@ def start_fish(user_id):
             bait_duration = user["bait_duration"]
             break
     else:
+        # If they don't have an entry, make one
         user_rod = 0
         bait_power = 0
         bait_duration = 0
-        user = {"id":f"{user_id}","rod":user_rod,"bait_duration":bait_duration,"bait_power":bait_power}
+        money = 0
+        user = {"id":user_id,"rod":user_rod,"bait_duration":bait_duration,"bait_power":bait_power,"money":money}
         print("creating new user: ", user)
         data.append(user)
     
@@ -43,6 +47,7 @@ def start_fish(user_id):
     roll += user_rod + bait_power
     print(roll)
     
+    # Update bait duration and power
     if bait_duration > 0:
         bait_duration -= 1
     if bait_duration <= 0:
@@ -80,9 +85,11 @@ def start_fish(user_id):
     print(data)
     for user in data:
         if user_id == user.get("id"):
+            # Update the user's data
             print("passed")
             user["bait_power"] = bait_power*10
             user["bait_duration"] = bait_duration
+            # Write updated data to the file
             with open("meta/user_buffs.json","w") as buffs:
                 json.dump(data, buffs)
             break
@@ -109,8 +116,10 @@ def get_inv(user_id, page_raw):
 def sell(user_id, index):
     # Get the file id
     file_name = "inv_" + str(user_id)
-    price = random.randint(0,10) + 25
+    # Generate a random price between 5 and 25
+    price = random.randint(0,20) + 5
     
+    # Read their inventory, stop at the index provided
     with open(f"inventories/{file_name}", 'r') as inv:
         i=0
         fish=""
@@ -120,6 +129,39 @@ def sell(user_id, index):
                 fish=line.strip('\n')
                 break
         else:
-            return("Hey! What are you trying to pull?")
-    return ([{"type":"message","message":f"I\'ll buy your {fish} for {price}. Deal?","store_message":True, "metadata":{"user_id":user_id,"index":index,"price":price}}, \
+            # If they provided an index that's not in their inventory, return an error
+            return([{"type":"message","message":"Hey! What are you trying to pull?"}])
+    return ([{"type":"message","message":f"I\'ll buy your {fish} for {price}. Deal?","store_message":True, "metadata":{"user_id":user_id,"type":"sale","index":index,"price":price}}, \
         {"type":"react", "react":"✅", "self":True}, {"type":"react", "react":"❎", "self":True}])
+
+def shop():
+    # Get shop data from meta/shop_data.json
+    with open("meta/shop_data.json") as shop:
+        data = json.load(shop)
+    
+    # Create an embed with relevant information
+    embed=discord.Embed(title="Shop", description="Everything's for sale.", color=0x58abdf)
+    embed.set_thumbnail(url="https://media.discordapp.net/attachments/966488795065229342/1098599127308316712/IMG_8414.png?width=612&height=701")
+    for item in data:
+        name = item.get("name", "temp")
+        desc = item.get("desc", "temp")
+        price = item.get("price", 0)
+        id = item.get("id", -1)
+        embed.add_field(name=f"{id}. {name}", value=f"${price}\n{desc}", inline=False)
+    return embed
+
+def buy(index, user, shop_data, buff, to_increase, increase_by):
+    # Get the price from the provided shop
+    price = shop_data[index].get("price")
+    if user.get("money") < price:
+        # If the user can't pay, return
+        return("Hey! You can't pay for that!")
+    else:
+        # Otherwise decrease their money and give them whatever they bought
+        user["money"] -= price
+        to_increase += increase_by
+        if to_increase is user["bait_power"]:
+            user["bait_duration"] += 5
+        with open("meta/user_buffs.json", "w") as buffs:
+            json.dump(buff, buffs)
+    return ("Thanks for your buisness.")
