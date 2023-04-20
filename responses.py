@@ -135,6 +135,12 @@ def handle_response(message, user_id: int, server, event_type, **kwargs):
                 embedVar.add_field(name="Fish in storage:", value=fish_count, inline=False)
                 embedVar.add_field(name="Rod Level:", value=rod, inline=False)
                 embedVar.add_field(name="Money:", value=money, inline=False)
+                
+                if user.get("bait_duration") > 0:
+                    bait_duration = user.get("bait_duration")
+                    bait_power = user.get("bait_power")
+                    embedVar.add_field(name="Bait:", value=f"Casts Left: {bait_duration}\nBonus: {bait_power}")
+                
                 return ([{"type":"message","message":"","embed":embedVar}])
             else:
                 # Default command, pass to fish.py
