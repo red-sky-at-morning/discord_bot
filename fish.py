@@ -134,10 +134,14 @@ def sell(user_id, index):
     return ([{"type":"message","message":f"I\'ll buy your {fish} for {price}. Deal?","store_message":True, "metadata":{"user_id":user_id,"type":"sale","index":index,"price":price}}, \
         {"type":"react", "react":"✅", "self":True}, {"type":"react", "react":"❎", "self":True}])
 
-def shop():
+def shop(user_id):
     # Get shop data from meta/shop_data.json
-    with open("meta/shop_data.json") as shop:
+    with open("meta/shop_data.json") as shop, open("meta/user_buffs.json") as buffs:
         data = json.load(shop)
+        buffs = json.load(buffs)
+        for users in buffs:
+            if users.get("id", 0) == user_id:
+                user = users
     
     # Create an embed with relevant information
     embed=discord.Embed(title="Shop", description="Everything's for sale.", color=0x58abdf)
@@ -147,6 +151,10 @@ def shop():
         desc = item.get("desc", "temp")
         price = item.get("price", 0)
         id = item.get("id", -1)
+        # Add a variable price for the fishing rod
+        # Interject the price into anywhere it would show up because I couldn't think of a better way to do it
+        if name == "Fishing Rod Upgrade":
+            price = (user.get("rod")+1)*100
         embed.add_field(name=f"{id}. {name}", value=f"${price}\n{desc}", inline=False)
     return embed
 
@@ -158,6 +166,9 @@ def buy(index, user, shop_data, buff, to_increase, increase_by):
         return("Hey! You can't pay for that!")
     else:
         # Otherwise decrease their money and give them whatever they bought
+        # Add a variable price for the fishing rod
+        if index == 0:
+            price = (user.get("rod")+1)*100
         user["money"] -= price
         if to_increase == "rod":
             user["rod"] += increase_by

@@ -16,5 +16,11 @@
         "price":75,
         "desc":"Gives you a boost to fishing for 5 casts. \nMakes you more likely to get rare loot.",
         "id":3
+    },
+    {
+        "name":"Cheese",
+        "price":1000000000,
+        "desc":"cheese",
+        "id":"4"
     }
 ]

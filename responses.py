@@ -113,7 +113,7 @@ def handle_response(message, user_id: int, server, event_type, **kwargs):
                 return(fish.sell(user_id, index))
             elif "shop" in p_message:
                 # Pass to fish.py
-                shop = fish.shop()
+                shop = fish.shop(user_id)
                 return ([{"type":"message", "message":"", "embed":shop, "store_message":True, "metadata":{"user_id":user_id, "type":"shop"}}, {"type":"react", "react":"1️⃣", "self":"true"}, \
                     {"type":"react","react":"2️⃣", "self":"true"}, {"type":"react", "react":"3️⃣", "self":"true"}, \
                         {"type":"react", "react":"4️⃣", "self":"true"}, {"type":"react", "react":"5️⃣", "self":"true"}])
@@ -153,6 +153,7 @@ def handle_response(message, user_id: int, server, event_type, **kwargs):
             r_message.strip()
             d_message = r_message.split("d")
             khn = ""
+            # Get the number of dice to roll
             try:
                 die_num = int(d_message[0])
             except ValueError:
@@ -308,10 +309,10 @@ that starts at {start} and ends at {end}"}])
         for item in data:
             # Check if the message being reacted to is a shop
             if kwargs.get("messageable").id == item.get("id"):
-                if user_id != item.get("user_id"):
-                    return
                 # Check if the user is selling a fish
                 if item.get("type") == "sale":
+                    if user_id != item.get("user_id"):
+                        return
                     match message:
                         case "✅":
                             # Get the file id
@@ -358,6 +359,9 @@ that starts at {start} and ends at {end}"}])
                     match message:
                         # Pass relevant information to fish.py
                         case "1️⃣":
+                            # Make sure you can't buy a rod upgrade for a lower display price
+                            if user_id != item.get("user_id"):
+                                return([{"type":"message","message":"Sorry, I can't let you buy that."}])
                             reply = fish.buy(0, user, shop_data, buff, "rod", 1)
                             return([{"type":"message","message":reply}, {"type":"react", "react":message, "add":False}])
                         case "2️⃣":
@@ -367,7 +371,8 @@ that starts at {start} and ends at {end}"}])
                             reply = fish.buy(2, user, shop_data, buff, "bait", 2)
                             return([{"type":"message","message":reply}, {"type":"react", "react":message, "add":False}])
                         case "4️⃣":
-                            return([{"type":"message","message":"Out of stock"}, {"type":"react", "react":message, "add":False}])
+                            reply = fish.buy(3, user, shop_data, buff, "cheese", 0)
+                            return([{"type":"message","message":reply}, {"type":"react", "react":message, "add":False}])
                         case "5️⃣":
                             return([{"type":"message","message":"Out of stock"}, {"type":"react", "react":message, "add":False}])
 

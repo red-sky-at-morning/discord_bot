@@ -166,7 +166,6 @@ with {emoji} in #{channel} in {server}")
     client.run(TOKEN)
 
 # Run the bot
-# I know it's not best practice,
-# But I got tired of switching to a seperate file every time I wanted to test something
+# I know it's not best practice, but I got tired of switching to a seperate file every time I wanted to test something
 if __name__ == "__main__":
     run_disc_bot()
