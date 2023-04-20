@@ -6,7 +6,7 @@ effects = ('speed','slowness','haste','mining fatigue','strength','instant healt
 # Load list of fish for random fish
 banned_users = (771802284929056769, 409071383004446720, 762031037852418058)
 
-with open('list_of_fish.txt','r') as fish:
+with open('meta/list_of_fish.txt','r') as fish:
     fish_list = []
     for line in fish.readlines():
         fish_list.append(line.strip("\n"))
@@ -17,7 +17,7 @@ def start_fish(user_id):
         return (f"<@{user_id}> does not have a fishing liscense!")
     
     # Get the rod and buffs of the user
-    with open("user_buffs.json","r") as buffs:
+    with open("meta/user_buffs.json","r") as buffs:
         data = json.load(buffs)
         print(data)
     
@@ -83,7 +83,7 @@ def start_fish(user_id):
             print("passed")
             user["bait_power"] = bait_power*10
             user["bait_duration"] = bait_duration
-            with open("user_buffs.json","w") as buffs:
+            with open("meta/user_buffs.json","w") as buffs:
                 json.dump(data, buffs)
             break
     

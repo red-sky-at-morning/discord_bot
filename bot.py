@@ -19,12 +19,12 @@ async def handle_event(message, user_message, channel, server, server_id, user_i
                     except discord.errors.HTTPException:
                         await channel.send("Message was too long to send!")
                     if item.get("store_message", False):
-                        with open("shop_ids.json","r") as shop:
+                        with open("meta/shop_ids.json","r") as shop:
                             data = json.load(shop)
                         metadata = item.get("metadata", {})
                         metadata["id"] = message_1.id
                         data.append(metadata)
-                        with open("shop_ids.json","w") as shop:
+                        with open("meta/shop_ids.json","w") as shop:
                                 json.dump(data, shop)
                 case "reply":
                     try:
@@ -76,8 +76,8 @@ async def handle_event(message, user_message, channel, server, server_id, user_i
                     pass
 
 def run_disc_bot():
-    with open("TOKEN.txt", "r") as important:
-        token = important.readline(0)
+    with open("meta/TOKEN.txt", "r") as important:
+        token = important.readline().strip()
     TOKEN = token
     client = discord.Client(intents=intents)
 

@@ -83,7 +83,7 @@ def handle_response(message, user_id: int, server, event_type, **kwargs):
             elif "shop" in p_message:
                 return
             elif "stats" in p_message:
-                with open (f"inventories/inv_{user_id}", "r") as inv, open("user_buffs.json", "r") as buffs:
+                with open (f"inventories/inv_{user_id}", "r") as inv, open("meta/user_buffs.json", "r") as buffs:
                     data = json.load(buffs)
                     for user in data:
                         if user.get("id") == user_id:
@@ -232,7 +232,7 @@ that starts at {start} and ends at {end}"}])
                 return ([{"type": "wait", "time": 20}])
     
     elif (event_type == "react"):
-        with open("shop_ids.json", "r") as shop:
+        with open("meta/shop_ids.json", "r") as shop:
             data = json.load(shop)
         for item in data:
             if kwargs.get("messageable").id == item.get("id"):
@@ -243,12 +243,12 @@ that starts at {start} and ends at {end}"}])
                         # Get the file id
                         file_name = "inv_" + str(item.get("user_id"))
                         inv_list = []
-                        with open(f"inventories/{file_name}", 'r') as inv, open ("user_buffs.json", "r") as buffs:
+                        with open(f"inventories/{file_name}", 'r') as inv, open ("meta/user_buffs.json", "r") as buffs:
                             for line in inv.readlines():
                                 inv_list.append(line)
                             user_data = json.load(buffs)
-                        with open("user_buffs.json", "w") as buffs, open(f"inventories/{file_name}", 'w') as inv,\
-                            open("shop_ids.json", "w") as shop:
+                        with open("meta/user_buffs.json", "w") as buffs, open(f"inventories/{file_name}", 'w') as inv,\
+                            open("meta/shop_ids.json", "w") as shop:
                             for user in user_data:
                                 if user["id"] == item.get("user_id"):
                                     user["money"] += item["price"]
@@ -262,7 +262,7 @@ that starts at {start} and ends at {end}"}])
                     case "❎":
                         print("Deal Closed")
                         data.remove(item)
-                        with open("shop_ids.json", "w") as shop:
+                        with open("meta/shop_ids.json", "w") as shop:
                             json.dump(data, shop)
                             return ([{"type":"message","message":"Looks like we're done here."}])
         
