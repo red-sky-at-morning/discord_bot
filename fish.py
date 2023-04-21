@@ -47,25 +47,28 @@ def start_fish(user_id):
     roll += user_rod + bait_power
     print(roll)
     
+    # Change the return system to allow notifications when bait runs out
+    to_return = [{"type": "message", "message": "The waters are stirring..."}, {"type": "wait", "time": 2}]
+    
     # Update bait duration and power
     if bait_duration > 0:
         bait_duration -= 1
-    if bait_duration <= 0:
-        bait_power = 0
+        if bait_duration == 0:
+            bait_power = 0
+            to_return.append({"type":"message","message":f"Your bait ran out."})
     
     # Make a filename using the userid
     file_name = "inv_" + str(user_id)
     
-    to_return = ""
     # Get a potion
-    if roll >= .95:
+    if roll >= 1.0:
         roll2 = random.randint(0,32)
         effect = effects[roll2]
         # Add potion to the inventory file
         with open(f"inventories/{file_name}", 'a') as inv:
             inv.write(f"\nPotion of {effect}")
         # Return potion to print
-        to_return = f"<@{user_id}> got a potion of {effect}"
+        to_return.append({"type":"message","message":f"<@{user_id}> got a potion of {effect}!"})
     
     # Get a fish
     elif (roll > 0.2):
@@ -76,11 +79,11 @@ def start_fish(user_id):
         with open(f"inventories/{file_name}", 'a') as inv:
             inv.write(f"\n{fish}")
         # Return fish to print
-        to_return = f"<@{user_id}> caught a {fish}"
+        to_return.append({"type":"message","message":f"<@{user_id}> got a {fish}!"})
      
     # Get nothing
     else:
-       to_return = "Not even a nibble..."
+       to_return.append({"type":"message","message":f"Not even a nibble..."})
    
     print(data)
     for user in data:
@@ -131,7 +134,7 @@ def sell(user_id, index):
         else:
             # If they provided an index that's not in their inventory, return an error
             return([{"type":"message","message":"Hey! What are you trying to pull?"}])
-    return ([{"type":"message","message":f"I\'ll buy your {fish} for {price}. Deal?","store_message":True, "metadata":{"user_id":user_id,"type":"sale","index":index,"price":price}}, \
+    return ([{"type":"message","message":f"I\'ll buy your {fish} for {price}, <@{user_id}>. Deal?","store_message":True, "metadata":{"user_id":user_id,"type":"sale","index":index,"price":price}}, \
         {"type":"react", "react":"✅", "self":True}, {"type":"react", "react":"❎", "self":True}])
 
 def shop(user_id):
@@ -161,17 +164,19 @@ def shop(user_id):
 def buy(index, user, user_id, shop_data, buff, to_increase, increase_by, **kwargs):
     # Get the price from the provided shop
     price = shop_data[index].get("price")
+    name = shop_data[index].get("name")
     if user.get("money") < price:
         # If the user can't pay, return
-        return(f"Hey! You can't pay for that, <@{user_id}>!")
+        return(f"Hey! You can't pay for that {name}, <@{user_id}>!")
     else:
         # Otherwise decrease their money and give them whatever they bought
         # Add a variable price for the fishing rod
-        name = shop_data[index].get("name")
         if index == 0:
             price = (user.get("rod")+1)*100
         user["money"] -= price
         if to_increase == "rod":
+            if user.get("rod") >= 5:
+                return(f"Sorry, I can't sell you that {name}, <@{user_id}>.")
             user["rod"] += increase_by
         elif to_increase == "bait":
             if user.get("bait_duration") > 10:

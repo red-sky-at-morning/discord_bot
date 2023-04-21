@@ -5,7 +5,7 @@ import json
 import discord
 import event as ev
 
-testing_mode = True
+testing_mode = False
 banned_users = (694231818957750280, 0)
 
 def handle_response(message, user_id: int, server, event_type, **kwargs):
@@ -144,7 +144,7 @@ def handle_response(message, user_id: int, server, event_type, **kwargs):
                 return ([{"type":"message","message":"","embed":embedVar}])
             else:
                 # Default command, pass to fish.py
-                return ([{"type": "message", "message": "The waters are stirring..."}, {"type": "wait", "time": 2}, {"type": "message", "message": f"{fish.start_fish(user_id)}"}])
+                return (fish.start_fish(user_id))
             
             
         elif ">roll" in p_message:
@@ -344,7 +344,7 @@ that starts at {start} and ends at {end}"}])
                             data.remove(item)
                             with open("meta/shop_ids.json", "w") as shop:
                                 json.dump(data, shop)
-                                return ([{"type":"message","message":f"Looks like we're done here, , <@{user_id}>."}])
+                                return ([{"type":"message","message":f"Looks like we're done here, <@{user_id}>."}])
                 elif item.get("type") == "shop":
                     # Open the shop data and the user's buffs
                     with open("meta/shop_data.json", "r") as shops, open("meta/user_buffs.json", "r") as buffs:
