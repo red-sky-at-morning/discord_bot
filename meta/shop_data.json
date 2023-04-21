@@ -18,9 +18,15 @@
         "id":3
     },
     {
+        "name":"Fishing Bait: Tier 3",
+        "price":150,
+        "desc":"Gives you a major boost to fishing for 10 casts. \nMakes you more likely to get rare loot.",
+        "id":4
+    },
+    {
         "name":"Cheese",
         "price":1000000000,
         "desc":"cheese",
-        "id":"4"
+        "id":5
     }
 ]

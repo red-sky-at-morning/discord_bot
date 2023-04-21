@@ -5,7 +5,7 @@ import json
 import discord
 import event as ev
 
-testing_mode = False
+testing_mode = True
 banned_users = (694231818957750280, 0)
 
 def handle_response(message, user_id: int, server, event_type, **kwargs):
@@ -337,14 +337,14 @@ that starts at {start} and ends at {end}"}])
                                             inv.write(line)
                                         json.dump(data, shop)
                                         json.dump(user_data, buffs)
-                                        return ([{"type":"message","message":"Thanks for your buisness!"}])
+                                        return ([{"type":"message","message":f"Thanks for your buisness, <@{user_id}>!"}])
                         case "❎":
                             # Remove the message from the shop file
                             print("Deal Closed")
                             data.remove(item)
                             with open("meta/shop_ids.json", "w") as shop:
                                 json.dump(data, shop)
-                                return ([{"type":"message","message":"Looks like we're done here."}])
+                                return ([{"type":"message","message":f"Looks like we're done here, , <@{user_id}>."}])
                 elif item.get("type") == "shop":
                     # Open the shop data and the user's buffs
                     with open("meta/shop_data.json", "r") as shops, open("meta/user_buffs.json", "r") as buffs:
@@ -355,26 +355,27 @@ that starts at {start} and ends at {end}"}])
                             if user.get("id") == user_id:
                                 break
                         else:
-                            return([{"type":"message","message":"Hey! You don't have any money!"}, {"type":"react", "react":message, "add":False}])
+                            return([{"type":"message","message":f"Hey! You don't have any money, <@{user_id}>!"}, {"type":"react", "react":message, "add":False}])
                     match message:
                         # Pass relevant information to fish.py
                         case "1️⃣":
                             # Make sure you can't buy a rod upgrade for a lower display price
                             if user_id != item.get("user_id"):
                                 return([{"type":"message","message":"Sorry, I can't let you buy that."}])
-                            reply = fish.buy(0, user, shop_data, buff, "rod", 1)
+                            reply = fish.buy(0, user, user_id, shop_data, buff, "rod", 1)
                             return([{"type":"message","message":reply}, {"type":"react", "react":message, "add":False}])
                         case "2️⃣":
-                            reply = fish.buy(1, user, shop_data, buff, "bait", 1)
+                            reply = fish.buy(1, user, user_id, shop_data, buff, "bait", 1, duration=5)
                             return([{"type":"message","message":reply}, {"type":"react", "react":message, "add":False}])
                         case "3️⃣":
-                            reply = fish.buy(2, user, shop_data, buff, "bait", 2)
+                            reply = fish.buy(2, user, user_id, shop_data, buff, "bait", 2, duration=5)
                             return([{"type":"message","message":reply}, {"type":"react", "react":message, "add":False}])
                         case "4️⃣":
-                            reply = fish.buy(3, user, shop_data, buff, "cheese", 0)
+                            reply = fish.buy(3, user, user_id, shop_data, buff, "bait", 5, duration=10)
                             return([{"type":"message","message":reply}, {"type":"react", "react":message, "add":False}])
                         case "5️⃣":
-                            return([{"type":"message","message":"Out of stock"}, {"type":"react", "react":message, "add":False}])
+                            reply = fish.buy(4, user, user_id, shop_data, buff, "cheese", 0)
+                            return([{"type":"message","message":reply}, {"type":"react", "react":message, "add":False}])
 
         # Misc reactions
         if getattr(args.get("message_author"),"name") == "EclipseBot":

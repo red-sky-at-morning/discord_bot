@@ -158,25 +158,26 @@ def shop(user_id):
         embed.add_field(name=f"{id}. {name}", value=f"${price}\n{desc}", inline=False)
     return embed
 
-def buy(index, user, shop_data, buff, to_increase, increase_by):
+def buy(index, user, user_id, shop_data, buff, to_increase, increase_by, **kwargs):
     # Get the price from the provided shop
     price = shop_data[index].get("price")
     if user.get("money") < price:
         # If the user can't pay, return
-        return("Hey! You can't pay for that!")
+        return(f"Hey! You can't pay for that, <@{user_id}>!")
     else:
         # Otherwise decrease their money and give them whatever they bought
         # Add a variable price for the fishing rod
+        name = shop_data[index].get("name")
         if index == 0:
             price = (user.get("rod")+1)*100
         user["money"] -= price
         if to_increase == "rod":
             user["rod"] += increase_by
         elif to_increase == "bait":
+            if user.get("bait_duration") > 10:
+                return(f"Sorry, I can't sell you that {name}, <@{user_id}>.")
             user["bait_power"] += increase_by
-            user["bait_duration"] += 5
-        if to_increase is user["bait_power"]:
-            user["bait_duration"] += 5
+            user["bait_duration"] += kwargs.get("duration")
         with open("meta/user_buffs.json", "w") as buffs:
             json.dump(buff, buffs)
-    return ("Thanks for your buisness.")
+    return (f"Thanks for buying {name}, <@{user_id}>")
