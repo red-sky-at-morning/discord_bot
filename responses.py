@@ -116,7 +116,7 @@ def handle_response(message, user_id: int, server, event_type, **kwargs):
                 shop = fish.shop(user_id)
                 return ([{"type":"message", "message":"", "embed":shop, "store_message":True, "metadata":{"user_id":user_id, "type":"shop"}}, {"type":"react", "react":"1️⃣", "self":"true"}, \
                     {"type":"react","react":"2️⃣", "self":"true"}, {"type":"react", "react":"3️⃣", "self":"true"}, \
-                        {"type":"react", "react":"4️⃣", "self":"true"}, {"type":"react", "react":"5️⃣", "self":"true"}])
+                        {"type":"react", "react":"4️⃣", "self":"true"}, {"type":"react", "react":"5️⃣", "self":"true"}, {"type":"react", "react":"6️⃣", "self":"true"}])
             elif "stats" in p_message:
                 # Get the user's inventory, create an embed, then send it
                 with open (f"inventories/inv_{user_id}", "r") as inv, open("meta/user_buffs.json", "r") as buffs:
@@ -140,6 +140,13 @@ def handle_response(message, user_id: int, server, event_type, **kwargs):
                     bait_duration = user.get("bait_duration")
                     bait_power = user.get("bait_power")
                     embedVar.add_field(name="Bait:", value=f"Casts Left: {bait_duration}\nBonus: {bait_power}")
+                
+                bite_pass = user.get("bite")
+                cheese = user.get("cheese", 0)
+                inv_string = f"Bite Pass x{bite_pass}"
+                if cheese > 0:
+                    inv_string = f"{inv_string}, Cheese x{cheese}"
+                embedVar.add_field(name="Other:", value=inv_string)
                 
                 return ([{"type":"message","message":"","embed":embedVar}])
             else:
@@ -268,10 +275,23 @@ that starts at {start} and ends at {end}"}])
         # Random other commands, you can delete these
         elif ">bite" in p_message:
             b_message = p_message[6:]
-            if (user_id == "630837649963483179" or user_id == "390282832766959617") or b_message == "<@607316432807788549>":
+            if (user_id == 630837649963483179 or user_id == 390282832766959617) or b_message == "<@607316432807788549>":
                 return ([{"type": "message", "message": f"<@{user_id}> bit {b_message}!"}, {"type": "wait", "time": 3}, {"type": "react", "react": "✈️"}, {"type": "react", "react": "🏢"}])
             else:
-                return ([{"type": "message", "message": "Biting is mean!"}, {"type": "wait", "time": 3}, {"type": "react", "react": "✈️"}, {"type": "react", "react": "🏢"}])
+                with open("meta/user_buffs.json", "r") as buffs:
+                    data = json.load(buffs)
+                    for user in data:
+                        if user.get("id") == user_id:
+                            break
+                    else: 
+                        return ([{"type": "message", "message": "Biting is mean!"}])
+                if user.get("bite") > 0:
+                    user["bite"] = 0
+                    with open("meta/user_buffs.json", "w") as buff:
+                        data[data.index(user)] = user
+                        json.dump(data, buff)
+                        return ([{"type": "message", "message": f"<@{user_id}> bit {b_message}!"}])
+                return ([{"type": "message", "message": "Biting is mean!"}])
 
         elif "ur mom" in p_message:
             return ([{"type": "message", "message": "ur dad"}])
@@ -374,7 +394,10 @@ that starts at {start} and ends at {end}"}])
                             reply = fish.buy(3, user, user_id, shop_data, buff, "bait", 5, duration=10)
                             return([{"type":"message","message":reply}, {"type":"react", "react":message, "add":False}])
                         case "5️⃣":
-                            reply = fish.buy(4, user, user_id, shop_data, buff, "cheese", 0)
+                            reply = fish.buy(4, user, user_id, shop_data, buff, "bite", 1)
+                            return([{"type":"message","message":reply}, {"type":"react", "react":message, "add":False}])
+                        case "6️⃣":
+                            reply = fish.buy(5, user, user_id, shop_data, buff, "cheese", 0)
                             return([{"type":"message","message":reply}, {"type":"react", "react":message, "add":False}])
 
         # Misc reactions

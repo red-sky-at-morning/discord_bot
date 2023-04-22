@@ -4,7 +4,7 @@ import discord.embeds
 # List of minecraft potion effects for random potions
 effects = ('speed','slowness','haste','mining fatigue','strength','instant health','instant damage','jump boost','nausea','regeneration','resistance','fire resistance','water breathing','invisibility','blindness','night vision','hunger','weakness','poison',
            'wither','health boost','absorption','saturation','glowing','levitation','luck','bad luck','slow falling','conduit power','dolphin\'s grace','bad omen','hero of the village','darkness')
-banned_users = (771802284929056769, 409071383004446720, 762031037852418058)
+banned_users = (409071383004446720, 762031037852418058)
 
 # Load list of fish for random fish
 with open('meta/list_of_fish.txt','r') as fish:
@@ -15,7 +15,7 @@ with open('meta/list_of_fish.txt','r') as fish:
 def start_fish(user_id):
     # Check if the user is banned from fishing
     if user_id in banned_users:
-        return (f"<@{user_id}> does not have a fishing liscense!")
+        return ([{"type":"message","message":f"{user_id} does not have a fishing liscense!"}])
     
     # Get the rod and buffs of the user
     with open("meta/user_buffs.json","r") as buffs:
@@ -36,8 +36,7 @@ def start_fish(user_id):
         user_rod = 0
         bait_power = 0
         bait_duration = 0
-        money = 0
-        user = {"id":user_id,"rod":user_rod,"bait_duration":bait_duration,"bait_power":bait_power,"money":money}
+        user = {"id":user_id,"rod":user_rod,"bait_duration":bait_duration,"bait_power":bait_power,"money":0, "bite":0}
         print("creating new user: ", user)
         data.append(user)
     
@@ -174,15 +173,20 @@ def buy(index, user, user_id, shop_data, buff, to_increase, increase_by, **kwarg
         if index == 0:
             price = (user.get("rod")+1)*100
         user["money"] -= price
-        if to_increase == "rod":
-            if user.get("rod") >= 5:
-                return(f"Sorry, I can't sell you that {name}, <@{user_id}>.")
-            user["rod"] += increase_by
-        elif to_increase == "bait":
-            if user.get("bait_duration") > 10:
-                return(f"Sorry, I can't sell you that {name}, <@{user_id}>.")
-            user["bait_power"] += increase_by
-            user["bait_duration"] += kwargs.get("duration")
+        match to_increase:
+            case "rod":
+                if user.get("rod") >= 5:
+                    return(f"Sorry, I can't sell you that {name}, <@{user_id}>.")
+                user["rod"] += increase_by
+            case "bait":
+                if user.get("bait_duration") > 10:
+                    return(f"Sorry, I can't sell you that {name}, <@{user_id}>.")
+                user["bait_power"] += increase_by
+                user["bait_duration"] += kwargs.get("duration")
+            case "bite":
+                if user.get("bite") > 0:
+                    return(f"Sorry, I can't sell you that {name}, <@{user_id}>.")
+                user["bite"] += 1
         with open("meta/user_buffs.json", "w") as buffs:
             json.dump(buff, buffs)
     return (f"Thanks for buying {name}, <@{user_id}>")

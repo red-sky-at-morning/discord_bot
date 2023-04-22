@@ -24,9 +24,15 @@
         "id":4
     },
     {
+        "name":"Biting Pass",
+        "price":200,
+        "desc":"Allows you to bite people. One time use only.",
+        "id":5
+    },
+    {
         "name":"Cheese",
         "price":1000000000,
         "desc":"cheese",
-        "id":5
+        "id":6
     }
 ]
