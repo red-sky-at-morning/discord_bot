@@ -59,7 +59,7 @@ def handle_response(message, user_id: int, server, event_type, **kwargs):
                     data = json.load(shop)
                 for item in data:
                     if item.get("type") == "shop":
-                        del data[data.index(item)]
+                        data.remove(item)
                 with open("meta/shop_ids.json", "w") as shop:
                     json.dump(data, shop)
                 return([{"type":"message","message":"Shops Removed"}])
@@ -116,7 +116,10 @@ def handle_response(message, user_id: int, server, event_type, **kwargs):
                 shop = fish.shop(user_id)
                 return ([{"type":"message", "message":"", "embed":shop, "store_message":True, "metadata":{"user_id":user_id, "type":"shop"}}, {"type":"react", "react":"1️⃣", "self":"true"}, \
                     {"type":"react","react":"2️⃣", "self":"true"}, {"type":"react", "react":"3️⃣", "self":"true"}, \
-                        {"type":"react", "react":"4️⃣", "self":"true"}, {"type":"react", "react":"5️⃣", "self":"true"}, {"type":"react", "react":"6️⃣", "self":"true"}])
+                        {"type":"react", "react":"4️⃣", "self":"true"}, {"type":"react", "react":"5️⃣", "self":"true"},\
+                            {"type":"react", "react":"6️⃣", "self":"true"}, {"type":"react", "react":"7️⃣", "self":"true"}, \
+                                {"type":"react", "react":"8️⃣", "self":"true"}, {"type":"react", "react":"9️⃣", "self":"true"}, \
+                                    {"type":"react", "react":"🔟", "self":"true"}])
             elif "stats" in p_message:
                 # Get the user's inventory, create an embed, then send it
                 with open (f"inventories/inv_{user_id}", "r") as inv, open("meta/user_buffs.json", "r") as buffs:
@@ -399,6 +402,19 @@ that starts at {start} and ends at {end}"}])
                         case "6️⃣":
                             reply = fish.buy(5, user, user_id, shop_data, buff, "cheese", 0)
                             return([{"type":"message","message":reply}, {"type":"react", "react":message, "add":False}])
+                        # Add parsnip, strawberry, corn, wheat seeds
+                        # case "7️⃣":
+                        #     reply = fish.buy(6, user, user_id, shop_data, buff, "seeds", 1, seeds="parsnip")
+                        #     return([{"type":"message","message":reply}, {"type":"react", "react":message, "add":False}])
+                        # case "8️⃣":
+                        #     reply = fish.buy(7, user, user_id, shop_data, buff, "seeds", 1, seeds="strawberry")
+                        #     return([{"type":"message","message":reply}, {"type":"react", "react":message, "add":False}])
+                        # case "9️⃣":
+                        #     reply = fish.buy(8, user, user_id, shop_data, buff, "seeds", 1, seeds="melon")
+                        #     return([{"type":"message","message":reply}, {"type":"react", "react":message, "add":False}])
+                        # case "🔟":
+                        #     reply = fish.buy(9, user, user_id, shop_data, buff, "seeds", 1, seeds="corn")
+                        #     return([{"type":"message","message":reply}, {"type":"react", "react":message, "add":False}])
 
         # Misc reactions
         if getattr(args.get("message_author"),"name") == "EclipseBot":

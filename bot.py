@@ -1,11 +1,17 @@
 import discord
+from discord.ext import tasks
 import responses
+import chat_window
 import asyncio
 import datetime as dt
+import queue
+import threading
 import json
 
 intents = discord.Intents.default()
 intents.message_content = True
+
+q = queue.Queue()
 
 async def handle_event(message, user_message, channel, server, server_id, user_id, event_type, **kwargs):
     response = (responses.handle_response(user_message, user_id, server, event_type, args=kwargs, messageable=message, server_id=server_id))
@@ -101,13 +107,18 @@ def run_disc_bot():
     # Read in the token from the meta/TOKEN.txt file.
     # No, I'm not giving you my bot token
     with open("meta/TOKEN.txt", "r") as important:
-        token = important.readline().strip()
-    TOKEN = token
+        TOKEN = important.readline().strip()
     client = discord.Client(intents=intents)
 
     # On ready, change the activity and print to the console
     @client.event
-    async def on_ready():
+    async def on_ready():      
+        uinput = input("Open chat (y/n)? ")
+        if uinput.lower() == "y":
+            x = threading.Thread(target=open_chat_window, args=[client, q])
+            x.start()
+            console_message.start()
+            
         await client.change_presence(activity=discord.Game(name="Gone fishin' 🎣"))
         print(f'{client.user} is now running!')
     
@@ -160,10 +171,26 @@ with {emoji} in #{channel} in {server}")
             await handle_event(message, user_message, channel, server, server_id, user_id, "message", mentioned=True)
         else:
             await handle_event(message, user_message, channel, server, server_id, user_id, "message", username = username, user=message.author)
-        
-        
+    
+    # Watch for tasks in queue
+    @tasks.loop(seconds=.1)
+    async def console_message(*args):
+        # Check if the q is empty
+        if (not q.empty()):
+            # Iterate over q and execute all commands in it
+            for i in range(q.qsize()):
+                item = q.get()
+                channel = item.get("channel")
+                server = item.get("server")
+                message = item.get("message")
+                await channel.send(message)
+                print(f"Said {message} in #{channel} in {server}")
+                q.task_done()
     
     client.run(TOKEN)
+
+def open_chat_window(client, q):
+    chat_window.run_async_console(client, q)
 
 # Run the bot
 # I know it's not best practice, but I got tired of switching to a seperate file every time I wanted to test something
