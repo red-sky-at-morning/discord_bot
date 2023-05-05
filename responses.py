@@ -331,90 +331,92 @@ that starts at {start} and ends at {end}"}])
             data = json.load(shop)
         for item in data:
             # Check if the message being reacted to is a shop
-            if kwargs.get("messageable").id == item.get("id"):
-                # Check if the user is selling a fish
-                if item.get("type") == "sale":
-                    if user_id != item.get("user_id"):
-                        return
-                    match message:
-                        case "✅":
-                            # Get the file id
-                            file_name = "inv_" + str(item.get("user_id"))
-                            inv_list = []
-                            # Get the user's inventory and user data
-                            with open(f"inventories/{file_name}", 'r') as inv, open ("meta/user_buffs.json", "r") as buffs:
-                                for line in inv.readlines():
-                                    inv_list.append(line)
-                                user_data = json.load(buffs)
-                            with open("meta/user_buffs.json", "w") as buffs, open(f"inventories/{file_name}", 'w') as inv,\
-                                open("meta/shop_ids.json", "w") as shop:
-                                # Overwrite the user's buffs, inventory, and the shop ids
-                                for user in user_data:
-                                    # Add to the user's money and remove the fish
-                                    if user["id"] == item.get("user_id"):
-                                        user["money"] += item["price"]
-                                        data.remove(item)
-                                        del inv_list[item.get("index")-1]
-                                        # Write the updated inventory, shop file, and user data 
-                                        for line in inv_list:
-                                            inv.write(line)
-                                        json.dump(data, shop)
-                                        json.dump(user_data, buffs)
-                                        return ([{"type":"message","message":f"Thanks for your buisness, <@{user_id}>!"}])
-                        case "❎":
-                            # Remove the message from the shop file
-                            print("Deal Closed")
-                            data.remove(item)
-                            with open("meta/shop_ids.json", "w") as shop:
+            if kwargs.get("messageable").id != item.get("id"):
+                continue
+            # Check if the user is selling a fish
+            if item.get("type") == "sale":
+                if user_id != item.get("user_id"):
+                    return
+                match message:
+                    case "✅":
+                        # Get the file id
+                        file_name = "inv_" + str(item.get("user_id"))
+                        inv_list = []
+                        # Get the user's inventory and user data
+                        with open(f"inventories/{file_name}", 'r') as inv, open ("meta/user_buffs.json", "r") as buffs:
+                            for line in inv.readlines():
+                                inv_list.append(line)
+                            user_data = json.load(buffs)
+                        with open("meta/user_buffs.json", "w") as buffs, open(f"inventories/{file_name}", 'w') as inv,\
+                            open("meta/shop_ids.json", "w") as shop:
+                            # Overwrite the user's buffs, inventory, and the shop ids
+                            for user in user_data:
+                                # Add to the user's money and remove the fish
+                                if user["id"] != item.get("user_id"):
+                                    continue
+                                user["money"] += item["price"]
+                                data.remove(item)
+                                del inv_list[item.get("index")-1]
+                                # Write the updated inventory, shop file, and user data 
+                                for line in inv_list:
+                                    inv.write(line)
                                 json.dump(data, shop)
-                                return ([{"type":"message","message":f"Looks like we're done here, <@{user_id}>."}])
-                elif item.get("type") == "shop":
-                    # Open the shop data and the user's buffs
-                    with open("meta/shop_data.json", "r") as shops, open("meta/user_buffs.json", "r") as buffs:
-                        shop_data = json.load(shops)
-                        # Check if the user has an entry in the user_buffs file
-                        buff = json.load(buffs)
-                        for user in buff:
-                            if user.get("id") == user_id:
-                                break
-                        else:
-                            return([{"type":"message","message":f"Hey! You don't have any money, <@{user_id}>!"}, {"type":"react", "react":message, "add":False}])
-                    match message:
-                        # Pass relevant information to fish.py
-                        case "1️⃣":
-                            # Make sure you can't buy a rod upgrade for a lower display price
-                            if user_id != item.get("user_id"):
-                                return([{"type":"message","message":"Sorry, I can't let you buy that."}])
-                            reply = fish.buy(0, user, user_id, shop_data, buff, "rod", 1)
-                            return([{"type":"message","message":reply}, {"type":"react", "react":message, "add":False}])
-                        case "2️⃣":
-                            reply = fish.buy(1, user, user_id, shop_data, buff, "bait", 1, duration=5)
-                            return([{"type":"message","message":reply}, {"type":"react", "react":message, "add":False}])
-                        case "3️⃣":
-                            reply = fish.buy(2, user, user_id, shop_data, buff, "bait", 2, duration=5)
-                            return([{"type":"message","message":reply}, {"type":"react", "react":message, "add":False}])
-                        case "4️⃣":
-                            reply = fish.buy(3, user, user_id, shop_data, buff, "bait", 5, duration=10)
-                            return([{"type":"message","message":reply}, {"type":"react", "react":message, "add":False}])
-                        case "5️⃣":
-                            reply = fish.buy(4, user, user_id, shop_data, buff, "bite", 1)
-                            return([{"type":"message","message":reply}, {"type":"react", "react":message, "add":False}])
-                        case "6️⃣":
-                            reply = fish.buy(5, user, user_id, shop_data, buff, "cheese", 0)
-                            return([{"type":"message","message":reply}, {"type":"react", "react":message, "add":False}])
-                        # Add parsnip, strawberry, corn, wheat seeds
-                        # case "7️⃣":
-                        #     reply = fish.buy(6, user, user_id, shop_data, buff, "seeds", 1, seeds="parsnip")
-                        #     return([{"type":"message","message":reply}, {"type":"react", "react":message, "add":False}])
-                        # case "8️⃣":
-                        #     reply = fish.buy(7, user, user_id, shop_data, buff, "seeds", 1, seeds="strawberry")
-                        #     return([{"type":"message","message":reply}, {"type":"react", "react":message, "add":False}])
-                        # case "9️⃣":
-                        #     reply = fish.buy(8, user, user_id, shop_data, buff, "seeds", 1, seeds="melon")
-                        #     return([{"type":"message","message":reply}, {"type":"react", "react":message, "add":False}])
-                        # case "🔟":
-                        #     reply = fish.buy(9, user, user_id, shop_data, buff, "seeds", 1, seeds="corn")
-                        #     return([{"type":"message","message":reply}, {"type":"react", "react":message, "add":False}])
+                                json.dump(user_data, buffs)
+                                return ([{"type":"message","message":f"Thanks for your buisness, <@{user_id}>!"}])
+                    case "❎":
+                        # Remove the message from the shop file
+                        print("Deal Closed")
+                        data.remove(item)
+                        with open("meta/shop_ids.json", "w") as shop:
+                            json.dump(data, shop)
+                            return ([{"type":"message","message":f"Looks like we're done here, <@{user_id}>."}])
+            elif item.get("type") == "shop":
+                # Open the shop data and the user's buffs
+                with open("meta/shop_data.json", "r") as shops, open("meta/user_buffs.json", "r") as buffs:
+                    shop_data = json.load(shops)
+                    # Check if the user has an entry in the user_buffs file
+                    buff = json.load(buffs)
+                    for user in buff:
+                        if user.get("id") == user_id:
+                            break
+                    else:
+                        return([{"type":"message","message":f"Hey! You don't have any money, <@{user_id}>!"}, {"type":"react", "react":message, "add":False}])
+                match message:
+                    # Pass relevant information to fish.py
+                    case "1️⃣":
+                        # Make sure you can't buy a rod upgrade for a lower display price
+                        if user_id != item.get("user_id"):
+                            return([{"type":"message","message":"Sorry, I can't let you buy that."}])
+                        reply = fish.buy(0, user, user_id, shop_data, buff, "rod", 1)
+                        return([{"type":"message","message":reply}, {"type":"react", "react":message, "add":False}])
+                    case "2️⃣":
+                        reply = fish.buy(1, user, user_id, shop_data, buff, "bait", 1, duration=5)
+                        return([{"type":"message","message":reply}, {"type":"react", "react":message, "add":False}])
+                    case "3️⃣":
+                        reply = fish.buy(2, user, user_id, shop_data, buff, "bait", 2, duration=5)
+                        return([{"type":"message","message":reply}, {"type":"react", "react":message, "add":False}])
+                    case "4️⃣":
+                        reply = fish.buy(3, user, user_id, shop_data, buff, "bait", 5, duration=10)
+                        return([{"type":"message","message":reply}, {"type":"react", "react":message, "add":False}])
+                    case "5️⃣":
+                        reply = fish.buy(4, user, user_id, shop_data, buff, "bite", 1)
+                        return([{"type":"message","message":reply}, {"type":"react", "react":message, "add":False}])
+                    case "6️⃣":
+                        reply = fish.buy(5, user, user_id, shop_data, buff, "cheese", 0)
+                        return([{"type":"message","message":reply}, {"type":"react", "react":message, "add":False}])
+                    # Add parsnip, strawberry, corn, wheat seeds
+                    # case "7️⃣":
+                    #     reply = fish.buy(6, user, user_id, shop_data, buff, "seeds", 1, seeds="parsnip")
+                    #     return([{"type":"message","message":reply}, {"type":"react", "react":message, "add":False}])
+                    # case "8️⃣":
+                    #     reply = fish.buy(7, user, user_id, shop_data, buff, "seeds", 1, seeds="strawberry")
+                    #     return([{"type":"message","message":reply}, {"type":"react", "react":message, "add":False}])
+                    # case "9️⃣":
+                    #     reply = fish.buy(8, user, user_id, shop_data, buff, "seeds", 1, seeds="melon")
+                    #     return([{"type":"message","message":reply}, {"type":"react", "react":message, "add":False}])
+                    # case "🔟":
+                    #     reply = fish.buy(9, user, user_id, shop_data, buff, "seeds", 1, seeds="corn")
+                    #     return([{"type":"message","message":reply}, {"type":"react", "react":message, "add":False}])
 
         # Misc reactions
         if getattr(args.get("message_author"),"name") == "EclipseBot":
