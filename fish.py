@@ -2,9 +2,8 @@ import random
 import json
 import discord.embeds
 # List of minecraft potion effects for random potions
-effects = ('speed','slowness','haste','mining fatigue','strength','instant health','instant damage','jump boost','nausea','regeneration','resistance','fire resistance','water breathing','invisibility','blindness','night vision','hunger','weakness','poison',
-           'wither','health boost','absorption','saturation','glowing','levitation','luck','bad luck','slow falling','conduit power','dolphin\'s grace','bad omen','hero of the village','darkness')
-banned_users = (409071383004446720, 762031037852418058)
+effects = ()
+banned_users = (409071383004446720, 762031037852418058, 706256700813869096, 1131763352604000317, 629075346473353256)
 
 # Load list of fish for random fish
 with open('meta/list_of_fish.txt','r') as fish:
@@ -12,25 +11,31 @@ with open('meta/list_of_fish.txt','r') as fish:
     for line in fish.readlines():
         fish_list.append(line.strip("\n"))
 
-def start_fish(user_id):
+# Change the list of potions out for an actual loot table
+with open('meta/fishing_treasure.txt', 'r') as treasure:
+    treasure_list = []
+    for line in treasure.readlines():
+        treasure_list.append(line.strip("\n"))
+
+def start_fish(user_id, username):
     # Check if the user is banned from fishing
     if user_id in banned_users:
-        return ([{"type":"message","message":f"{user_id} does not have a fishing liscense!"}])
+        return ([{"type":"message","message":f"<@{user_id}> does not have a fishing liscense!"}])
     
     # Get the rod and buffs of the user
     with open("meta/user_buffs.json","r") as buffs:
         data = json.load(buffs)
-        print(data)
     
     for user in data:
-        print(user)
         # Get what item in data actually corresponds to the user
-        if user_id == user.get("id", 0):
-            print("passed")
-            user_rod = user["rod"]/10
-            bait_power = user["bait_power"]/10
-            bait_duration = user["bait_duration"]
-            break
+        # For each 3 rod levels above 5, the user gets one cast.
+        if user_id != user.get("id", 0):
+            continue
+        print("passed")
+        user_rod = user["rod"]
+        bait_power = user["bait_power"]/10
+        bait_duration = user["bait_duration"]
+        break
     else:
         # If they don't have an entry, make one
         user_rod = 0
@@ -39,15 +44,56 @@ def start_fish(user_id):
         user = {"id":user_id,"rod":user_rod,"bait_duration":bait_duration,"bait_power":bait_power,"money":0, "bite":0}
         print("creating new user: ", user)
         data.append(user)
-    
-    # Roll the random number to determine what you get
-    roll = random.random()
-    print(roll)
-    roll += user_rod + bait_power
-    print(roll)
+    if user_rod <= 5:
+        user_casts = 1
+        rod_power = user_rod / 20
+    else:
+        user_casts = int((user_rod - 4) * 3 / 5)
+        rod_power = user_rod / 20
     
     # Change the return system to allow notifications when bait runs out
     to_return = [{"type": "message", "message": "The waters are stirring..."}, {"type": "wait", "time": 2}]
+    
+    # Make a filename using the userid
+    file_name = "inv_" + str(user_id)
+    
+    # Roll the random number to determine what you get
+    for _ in range(user_casts):
+        roll = random.random()
+        print(roll)
+        roll += bait_power + rod_power
+        print(roll)
+
+        if roll >= 2:
+            to_return.append({"type":"message","message":f"Critical Cast!"})
+            user["money"] += 25
+
+        # Get treasure_list
+        if roll >= 0.95:
+            roll2 = random.randint(0,len(treasure_list) - 1)
+            treasure = treasure_list[roll2]
+            if treasure == "{{USERNAME}}":
+                treasure = username
+            # Add potion to the inventory file
+            with open(f"inventories/{file_name}", 'a') as inv:
+                inv.write(f"\n{treasure}")
+            # Return potion to print
+            to_return.append({"type":"message","message":f"<@{user_id}> got {treasure}!"})
+
+        # Get a fish
+        elif (roll > 0.2):
+            # Roll which fish you get
+            roll2 = random.randint(0,len(fish_list) - 1)
+            fish = fish_list[roll2]
+            # Add fish to inventory
+            with open(f"inventories/{file_name}", 'a') as inv:
+                inv.write(f"\n{fish}")
+            # Return fish to print
+            to_return.append({"type":"message","message":f"<@{user_id}> got a {fish}!"})
+            
+        # Get nothing
+        else:
+            to_return.append({"type":"message","message":f"Not even a nibble..."})
     
     # Update bait duration and power
     if bait_duration > 0:
@@ -56,45 +102,17 @@ def start_fish(user_id):
             bait_power = 0
             to_return.append({"type":"message","message":f"Your bait ran out."})
     
-    # Make a filename using the userid
-    file_name = "inv_" + str(user_id)
-    
-    # Get a potion
-    if roll >= 1.0:
-        roll2 = random.randint(0,32)
-        effect = effects[roll2]
-        # Add potion to the inventory file
-        with open(f"inventories/{file_name}", 'a') as inv:
-            inv.write(f"\nPotion of {effect}")
-        # Return potion to print
-        to_return.append({"type":"message","message":f"<@{user_id}> got a potion of {effect}!"})
-    
-    # Get a fish
-    elif (roll > 0.2):
-         # Roll which fish you get
-        roll2 = random.randint(1,474)
-        fish = fish_list[roll2]
-        # Add fish to inventory
-        with open(f"inventories/{file_name}", 'a') as inv:
-            inv.write(f"\n{fish}")
-        # Return fish to print
-        to_return.append({"type":"message","message":f"<@{user_id}> got a {fish}!"})
-     
-    # Get nothing
-    else:
-       to_return.append({"type":"message","message":f"Not even a nibble..."})
-   
-    print(data)
     for user in data:
-        if user_id == user.get("id"):
-            # Update the user's data
-            print("passed")
-            user["bait_power"] = bait_power*10
-            user["bait_duration"] = bait_duration
-            # Write updated data to the file
-            with open("meta/user_buffs.json","w") as buffs:
-                json.dump(data, buffs)
-            break
+        if user_id != user.get("id"):
+            continue
+        # Update the user's data
+        print("passed")
+        user["bait_power"] = bait_power*10
+        user["bait_duration"] = bait_duration
+        # Write updated data to the file
+        with open("meta/user_buffs.json","w") as buffs:
+            json.dump(data, buffs)
+        break
     
     return to_return
 
@@ -102,24 +120,28 @@ def get_inv(user_id, page_raw):
     # Get the file id
     file_name = "inv_" + str(user_id)
     # Turn page_raw into page to list the next 20 items from that number
-    page = (page_raw - 1) * 20
+    page = (page_raw - 1) * 10
     # List lines in the file and add them to the list
     inv_list = []
     
     with open(f"inventories/{file_name}", 'r') as inv:
         for line in inv.readlines():
-            inv_list.append(line.strip('\n'))
+            if (line.strip('\n') != "") & (line.strip('\n') != " "):
+                inv_list.append(line.strip('\n'))
+    with open(f"inventories/{file_name}", 'w') as inv:
+        for line in inv_list:
+            inv.write(f"{line}\n")
     # Return the 20 fish on that page with formatting
     for fish in inv_list:
         inv_list[inv_list.index(fish)] = f"{inv_list.index(fish)+1}. {fish}"
-    f_inv = (f"{inv_list[page:page+20]}").strip("[']").replace('\'','').replace('"','').replace(", ", "\n")
+    f_inv = (f"{inv_list[page:page+10]}").strip("[']").replace('\'','').replace('"','').replace(", ", "\n")
     return (f_inv)
 
 def sell(user_id, index):
     # Get the file id
     file_name = "inv_" + str(user_id)
     # Generate a random price between 5 and 25
-    price = random.randint(0,20) + 5
+    price = random.randint(0,90) + 10
     
     # Read their inventory, stop at the index provided
     with open(f"inventories/{file_name}", 'r') as inv:
@@ -127,12 +149,17 @@ def sell(user_id, index):
         fish=""
         for line in inv.readlines():
             i+=1
-            if i == index:
-                fish=line.strip('\n')
-                break
+            if i != index:
+                continue
+            fish=line.strip('\n')
+            break
         else:
             # If they provided an index that's not in their inventory, return an error
             return([{"type":"message","message":"Hey! What are you trying to pull?"}])
+        if fish == "":
+            return([{"type":"message","message":"Hey! What are you trying to pull?"}])
+        if fish.startswith("Potion"):
+            price += 50
     return ([{"type":"message","message":f"I\'ll buy your {fish} for {price}, <@{user_id}>. Deal?","store_message":True, "metadata":{"user_id":user_id,"type":"sale","index":index,"price":price}}, \
         {"type":"react", "react":"✅", "self":True}, {"type":"react", "react":"❎", "self":True}])
 
@@ -164,28 +191,29 @@ def buy(index, user, user_id, shop_data, buff, to_increase, increase_by, **kwarg
     # Get the price from the provided shop
     price = shop_data[index].get("price")
     name = shop_data[index].get("name")
-    if user.get("money") < price:
+    FAIL = f"Sorry, I can't sell you that {name}, <@{user_id}>."
+    if (user.get("money") < price) | (user.get("money") < 0):
         # If the user can't pay, return
         return(f"Hey! You can't pay for that {name}, <@{user_id}>!")
     else:
         # Otherwise decrease their money and give them whatever they bought
         # Add a variable price for the fishing rod
         if index == 0:
-            price = (user.get("rod")+1)*100
+            price = (user.get("rod")+1)*200
         user["money"] -= price
         match to_increase:
             case "rod":
-                if user.get("rod") >= 5:
-                    return(f"Sorry, I can't sell you that {name}, <@{user_id}>.")
+                if user.get("rod") >= 10:
+                    return(FAIL)
                 user["rod"] += increase_by
             case "bait":
                 if user.get("bait_duration") > 10:
-                    return(f"Sorry, I can't sell you that {name}, <@{user_id}>.")
+                    return(FAIL)
                 user["bait_power"] += increase_by
                 user["bait_duration"] += kwargs.get("duration")
             case "bite":
                 if user.get("bite") > 0:
-                    return(f"Sorry, I can't sell you that {name}, <@{user_id}>.")
+                    return(FAIL)
                 user["bite"] += 1
         with open("meta/user_buffs.json", "w") as buffs:
             json.dump(buff, buffs)

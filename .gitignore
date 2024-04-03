@@ -2,7 +2,6 @@ __pycache__/
 .vscode/
 inventories/*
 meta/TOKEN.txt
-trigcalculator.py
 .cache
 test.py
 

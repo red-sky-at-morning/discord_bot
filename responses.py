@@ -3,7 +3,6 @@ import song
 import random
 import json
 import discord
-import event as ev
 
 testing_mode = False
 banned_users = (694231818957750280, 0)
@@ -74,7 +73,7 @@ def handle_response(message, user_id: int, server, event_type, **kwargs):
                             {"type":"message","message":">fish stats: Check your stats and upgrades."},
                             {"type":"message","message":">flip: Flip a coin"},
                             {"type":"message","message":">roll [number]d[size]: Roll some dice!\
- Use kh[#] for keep highest, dl[#] for drop lowest, kl[#] for keep lowest, and dh[#] for keep lowest."},
+ Use kh[#] for keep highest, dl[#] for drop lowest, kl[#] for keep lowest, and dh[#] for drop highest."},
                             {"type":"message","message":">role \"[name]\" [hex code]:\
  Create a role with the provided name and color. Disabled by default."},
                             {"type":"message","message":">event \"[name]\" \"[location]\" <start time> <end time>:\
@@ -82,13 +81,15 @@ def handle_response(message, user_id: int, server, event_type, **kwargs):
 
             case '>flip':
                 roll = random.random()
-                if roll <= .5:
-                    return ([{"type": "message", "message": "Heads"}])
+                if roll < .5:
+                    return ([{"type": "message", "message": "It landed on heads!"}])
+                elif roll > .5:
+                    return ([{"type": "message", "message": "It landed on tails!"}])
                 else:
-                    return ([{"type": "message", "message": "Tails"}])
+                    return([{"type":"message", "message":"It landed on its side..."}])
             
             case "hi eclipsebot you look so cute today":
-                return([{"type":"react","react":"💖"}, {"type":"message","message":"thanks, but i'm aroace"}])
+                return([{"type":"react","react":"💖"}, {"type":"message","message":"thanks but i dont swing that way"}])
 
         # If-else list for commands with arguements and other messages
         if p_message[:5] == ">fish":
@@ -114,7 +115,8 @@ def handle_response(message, user_id: int, server, event_type, **kwargs):
             elif "shop" in p_message:
                 # Pass to fish.py
                 shop = fish.shop(user_id)
-                return ([{"type":"message", "message":"", "embed":shop, "store_message":True, "metadata":{"user_id":user_id, "type":"shop"}}, {"type":"react", "react":"1️⃣", "self":"true"}, \
+                return ([{"type":"message", "message":"", "embed":shop, "store_message":True, "metadata":{"user_id":user_id, "type":"shop"}}, \
+                    {"type":"react", "react":u"\u0031\uFE0F\u20E3", "self":"true"},
                     {"type":"react","react":"2️⃣", "self":"true"}, {"type":"react", "react":"3️⃣", "self":"true"}, \
                         {"type":"react", "react":"4️⃣", "self":"true"}, {"type":"react", "react":"5️⃣", "self":"true"},\
                             {"type":"react", "react":"6️⃣", "self":"true"}, {"type":"react", "react":"7️⃣", "self":"true"}, \
@@ -122,16 +124,19 @@ def handle_response(message, user_id: int, server, event_type, **kwargs):
                                     {"type":"react", "react":"🔟", "self":"true"}])
             elif "stats" in p_message:
                 # Get the user's inventory, create an embed, then send it
-                with open (f"inventories/inv_{user_id}", "r") as inv, open("meta/user_buffs.json", "r") as buffs:
-                    data = json.load(buffs)
-                    for user in data:
-                        if user.get("id") == user_id:
-                            break
-                    username = args.get("username")
-                    avatar = args.get("user").avatar.url
-                    rod = user.get("rod")
-                    fish_count = len(inv.readlines())
-                    money = user.get("money")
+                try:
+                    with open (f"inventories/inv_{user_id}", "r") as inv, open("meta/user_buffs.json", "r") as buffs:
+                        data = json.load(buffs)
+                        for user in data:
+                            if user.get("id") == user_id:
+                                break
+                        username = args.get("username")
+                        avatar = args.get("user").avatar.url
+                        rod = user.get("rod")
+                        fish_count = len(inv.readlines())
+                        money = user.get("money")
+                except FileNotFoundError:
+                    return([{"type":"message", "message":"I can't find your inventory. Make sure to fish at least once to start!"}])
                 
                 embedVar = discord.Embed(title=f"**{username}**", color=0x58abdf)
                 embedVar.set_thumbnail(url=avatar)
@@ -154,8 +159,7 @@ def handle_response(message, user_id: int, server, event_type, **kwargs):
                 return ([{"type":"message","message":"","embed":embedVar}])
             else:
                 # Default command, pass to fish.py
-                return (fish.start_fish(user_id))
-            
+                return (fish.start_fish(user_id, username))
             
         elif ">roll" in p_message:
             # String manipulation
@@ -187,7 +191,7 @@ def handle_response(message, user_id: int, server, event_type, **kwargs):
             roll_list = []
             total = 0
             # Roll the dice and add them to a total and a list
-            for i in range(die_num):
+            for _ in range(die_num):
                 r = random.randint(1, die_size)
                 roll_list.append(r)
             if khn != "":
@@ -229,17 +233,17 @@ def handle_response(message, user_id: int, server, event_type, **kwargs):
                 # Pass to song.py
                 case "random":
                     song_f = (song.playlist_tracks(playlist, "RANDOM"))
-                    return ([{"type": "message", "message": f"{song_f}"}])
+                    return (song_f)
                 case "list":
                     song_f = (song.playlist_tracks(playlist, "LIST"))
-                    return ([{"type": "message", "message": f"{song_f}"}])
+                    return (song_f)
                 case _:
                     # Add error handling
                     return ([{"type": "message", "message": "Not a valid command for >song! Try >song random or >song list instead!"}])
 
         elif ">role" in p_message:
             # Get allowed servers (You probably want to change these)
-            if ((server == "The Order") | (server == "swashbucklers and stuff") | (user_id == 630837649963483179)):
+            if ((server == "The Order") | (server == "swashbucklers and stuff") | (user_id == 630837649963483179) | (user_id == 760230669879607336)):
                 
                 # String manipulation
                 r_message = message_raw[6:]
@@ -259,26 +263,10 @@ def handle_response(message, user_id: int, server, event_type, **kwargs):
             else:
                 return ([{"type": "wait", "time": 3}, {"type": "react", "react": "✈️"}, {"type": "react", "react": "🏢"}])
 
-        elif ">event" in p_message:
-            e_message = message[7:]
-            
-            # Pass to event.py for string manipulation and other data, returns a dictionary
-            event = ev.get_event_data(e_message)
-            
-            # Get variables from dictionary
-            name = event["name"]
-            location = event["location"]
-            start = event["start"]
-            end = event["end"]
-            
-            return ([{"type": "event", "name": event["name"], "location": event["location"], "start": event["start"], "end": event["end"]},
-                    {"type": "message", "message": f"Created an event called {name}, set in {location}, \
-that starts at {start} and ends at {end}"}])
-
         # Random other commands, you can delete these
         elif ">bite" in p_message:
             b_message = p_message[6:]
-            if (user_id == 630837649963483179 or user_id == 390282832766959617) or b_message == "<@607316432807788549>":
+            if (user_id == 630837649963483179 or user_id == 390282832766959617 or (user_id == 607316432807788549 and b_message != "<@630837649963483179>")) or b_message == "<@607316432807788549>":
                 return ([{"type": "message", "message": f"<@{user_id}> bit {b_message}!"}, {"type": "wait", "time": 3}, {"type": "react", "react": "✈️"}, {"type": "react", "react": "🏢"}])
             else:
                 with open("meta/user_buffs.json", "r") as buffs:
@@ -321,7 +309,7 @@ that starts at {start} and ends at {end}"}])
 
         else:
             num = random.random()
-            if num < 0.001:
+            if num < 0.1:
                 return ([{"type": "wait", "time": 20}])
     
     # Add support for on react events
@@ -356,7 +344,7 @@ that starts at {start} and ends at {end}"}])
                                     continue
                                 user["money"] += item["price"]
                                 data.remove(item)
-                                del inv_list[item.get("index")-1]
+                                inv_list.pop(item.get("index")-1)
                                 # Write the updated inventory, shop file, and user data 
                                 for line in inv_list:
                                     inv.write(line)
@@ -430,3 +418,6 @@ that starts at {start} and ends at {end}"}])
             responses = ("bad post. bad", "you should feel bad about this", "lmao idiot", "no. just no.", "delete this")
             response = responses[random.randint(0,len(responses)-1)]
             return ([{"type":"reply","message":response,"id":kwargs.get("messageable")}])
+        
+        elif (args.get("react_author") == "midnight__sun"):
+            return([{"type":"react","react":message}])

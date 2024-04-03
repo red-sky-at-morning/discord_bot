@@ -1,11 +1,8 @@
-import bot
 import asyncio
 from aioconsole import ainput
 
-q = bot.getQueue()
-
-def run_async_console(client):
-    global q
+global q
+def run_async_console(client, q):
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     
@@ -21,10 +18,13 @@ def run_async_console(client):
         if len(uinput) == 0:
             return
         
+        rinput = uinput
+        uinput = uinput.lower()
+        
         if uinput[0] != ".":
             if ".clear" in uinput:
                 return
-            q.put({"message":uinput, "channel":channel, "server":server})
+            q.put({"message":rinput, "channel":channel, "server":server})
             return
         
         if uinput[:7] == ".server":
@@ -91,11 +91,10 @@ def run_async_console(client):
             return
     
     async def run_console():
-        print(f"Opening console in #{str(channel)} in {str(server)}")
+        print(f"Opening console in #{str(channel)} in {str(server)}\n")
         
         while True:
             uinput = await ainput("")
-            uinput = uinput.lower()
             await handle_console(uinput)
     
     loop.run_until_complete(run_console())

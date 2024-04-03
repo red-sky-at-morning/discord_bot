@@ -12,8 +12,8 @@ intents = discord.Intents.default()
 intents.message_content = True
 
 q = queue.Queue()
-def getQueue():
-    return q
+
+open_chat = True
 
 async def handle_event(message, user_message, channel, server, server_id, user_id, event_type, **kwargs):
     response = (responses.handle_response(user_message, user_id, server, event_type, args=kwargs, messageable=message, server_id=server_id))
@@ -21,6 +21,7 @@ async def handle_event(message, user_message, channel, server, server_id, user_i
     if not response:
         return
     # Iterate over the response and execute the commands
+    print(response)
     for item in response:
         print(item)
         match (item.get("type")):
@@ -29,7 +30,7 @@ async def handle_event(message, user_message, channel, server, server_id, user_i
                     # Send the message and store it in case another command references it
                     stored_message = await channel.send(item["message"], embed=item.get("embed", None))
                 except discord.errors.HTTPException:
-                    await channel.send("Message was too long to send!")
+                    await channel.send("Message was too long to send, or might have been empty!")
                 if not item.get("store_message", False):
                     continue
                 # If we want to store the message data, we send data to the meta/shop_ids file with any extra data
@@ -45,31 +46,32 @@ async def handle_event(message, user_message, channel, server, server_id, user_i
                 try:
                     stored_message = await channel.send(item["message"], reference=item["id"])
                 except discord.errors.HTTPException:
-                    await channel.send("Message was too long to send!")
+                    await channel.send("Message was too long to send, or might have been empty!")
             case "react":
                 # Check if we want to add the reaction (Defaults to yes)
-                if item.get("add", True):
-                    # If we want to add it to a message we just sent, change the message
-                    if item.get("self", False):
-                        await stored_message.add_reaction(item["react"])
-                        continue
-                        # Add reactions
-                    await message.add_reaction(item["react"])
-                else:
+                if not item.get("add", True):
                     # If we want to remove reactions, do that
                     await message.remove_reaction(item["react"], kwargs.get("user"))
+                    continue
+                    # If we want to add it to a message we just sent, change the message
+                if item.get("self", False):
+                    await stored_message.add_reaction(item["react"])
+                    continue
+                    # Add reactions
+                await message.add_reaction(item["react"])
+                    
             case "role":
                 # Get the color
-                if item["color"]:
+                if item.get("color", None):
                     color = discord.Colour.from_str(item["color"])
                 # Get the highest we can move the role to
                 for role in server.roles:
                     if getattr(role, "name") == "EclipseBot":
-                        pos = server.roles.index(role)-1
+                        pos = max(server.roles.index(role)-1, 1)
                 try:
                     # Create the role and move it to the position we grabbed earlier
                     created_role = await server.create_role(name=item["name"], color=color)
-                    await created_role.edit(position=pos)
+                    await created_role.edit(position=1)
                     await message.author.add_roles(created_role)
                 # Add error handling
                 except discord.errors.Forbidden:
@@ -78,14 +80,12 @@ async def handle_event(message, user_message, channel, server, server_id, user_i
                     await channel.send("Failed to create the role!")
             case "timeout":
                 # Get the time
-                time = item["time"]
+                time = item.get("time", 0)
                 try:
                     # Timeout the user
                     secs = int(time)
                     await message.author.timeout(dt.timedelta(seconds=secs))
                 # Add error handling
-                except ValueError:
-                    print(f"ValueError with item[\"time\"] ({time})")
                 except discord.errors.Forbidden:
                     await channel.send("No permissions to time out users!")
             case "event":
@@ -117,9 +117,8 @@ def run_disc_bot():
     # On ready, change the activity and print to the console
     @client.event
     async def on_ready():
-        uinput = input("Open chat (y/n)? ")
-        if uinput.lower() == "y":
-            x = threading.Thread(target=open_chat_window, args=[client])
+        if open_chat:
+            x = threading.Thread(target=open_chat_window, args=[client, q])
             x.start()
             console_message.start()
             
@@ -180,21 +179,22 @@ with {emoji} in #{channel} in {server}")
     @tasks.loop(seconds=.1)
     async def console_message(*args):
         # Check if the q is empty
-        if (not q.empty()):
-            # Iterate over q and execute all commands in it
-            for i in range(q.qsize()):
-                item = q.get()
-                channel = item.get("channel")
-                server = item.get("server")
-                message = item.get("message")
-                await channel.send(message)
-                print(f"Said {message} in #{channel} in {server}")
-                q.task_done()
+        if q.empty():
+            return
+        # Iterate over q and execute all commands in it
+        for _ in range(q.qsize()):
+            item = q.get()
+            channel = item.get("channel")
+            server = item.get("server")
+            message = item.get("message")
+            await channel.send(message)
+            print(f"Said {message} in #{channel} in {server}")
+            q.task_done()
     
     client.run(TOKEN)
 
-def open_chat_window(client):
-    chat_window.run_async_console(client)
+def open_chat_window(client, q):
+    chat_window.run_async_console(client, q)
 
 # Run the bot
 # I know it's not best practice, but I got tired of switching to a seperate file every time I wanted to test something

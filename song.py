@@ -8,7 +8,7 @@ client_credentials_manager = spotipy.SpotifyClientCredentials(client_id=CLIENT_I
 client_secret=CLIENT_SECRET)
 sp = spotipy.Spotify(client_credentials_manager = client_credentials_manager)
 
-def playlist_tracks(playlist_link, mode,):
+def playlist_tracks(playlist_link, mode):
     # Black magic to get the urt from the link
     list_uri = playlist_link.split("/")[-1].split("?")[0]
     # Use spotipy to get the playlist
