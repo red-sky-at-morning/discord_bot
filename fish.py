@@ -78,7 +78,7 @@ def start_fish(user_id, username):
             with open(f"inventories/{file_name}", 'a') as inv:
                 inv.write(f"\n{treasure}")
             # Return potion to print
-            to_return.append({"type":"message","message":f"<@{user_id}> got {treasure}!"})
+            to_return.append({"type":"message","message":f"<@{user_id}> got a {treasure}!"})
 
         # Get a fish
         elif (roll > 0.2):

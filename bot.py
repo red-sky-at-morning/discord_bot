@@ -13,7 +13,7 @@ intents.message_content = True
 
 q = queue.Queue()
 
-open_chat = True
+open_chat = False
 
 async def handle_event(message, user_message, channel, server, server_id, user_id, event_type, **kwargs):
     response = (responses.handle_response(user_message, user_id, server, event_type, args=kwargs, messageable=message, server_id=server_id))

@@ -159,7 +159,7 @@ def handle_response(message, user_id: int, server, event_type, **kwargs):
                 return ([{"type":"message","message":"","embed":embedVar}])
             else:
                 # Default command, pass to fish.py
-                return (fish.start_fish(user_id, username))
+                return (fish.start_fish(user_id, args.get("username")))
             
         elif ">roll" in p_message:
             # String manipulation
