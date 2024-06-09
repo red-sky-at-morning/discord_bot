@@ -160,6 +160,8 @@ def handle_response(message, user_id: int, server, event_type, **kwargs):
             else:
                 # Default command, pass to fish.py
                 return (fish.start_fish(user_id, args.get("username")))
+        elif ">fis" in p_message:
+            return([{"type":"message","message":"you fucking idiot"}])
             
         elif ">roll" in p_message:
             # String manipulation
@@ -292,6 +294,9 @@ def handle_response(message, user_id: int, server, event_type, **kwargs):
 
         elif "balls" in p_message:
             return ([{"type": "message", "message": "no."}])
+        
+        elif "i will protect you" in p_message or "i will protect u" in p_message:
+            return([{"type":"reply", "message":"𝖎 𝖜𝖎𝖑𝖑 𝖕𝖗𝖔𝖙𝖊𝖈𝖙 𝖞𝖔𝖚", "id":kwargs.get("messageable")}])
 
         elif ("riot" in p_message) or ("r1ot" in p_message) or ("ri0t" in p_message) or ("r10t" in p_message):
             return ([{"type": "message", "message": "no rioting"}, {"type": "wait", "time": 3}, {"type": "react", "react": "✈️"}, {"type": "react", "react": "🏢"}])
@@ -309,7 +314,7 @@ def handle_response(message, user_id: int, server, event_type, **kwargs):
 
         else:
             num = random.random()
-            if num < 0.1:
+            if num < 0.05:
                 return ([{"type": "wait", "time": 20}])
     
     # Add support for on react events

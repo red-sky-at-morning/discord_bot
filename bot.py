@@ -7,11 +7,13 @@ import datetime as dt
 import queue
 import threading
 import json
+import argparse
 
 intents = discord.Intents.default()
 intents.message_content = True
 
 q = queue.Queue()
+terminal_args = argparse.Namespace()
 
 open_chat = False
 
@@ -117,11 +119,6 @@ def run_disc_bot():
     # On ready, change the activity and print to the console
     @client.event
     async def on_ready():
-        if open_chat:
-            x = threading.Thread(target=open_chat_window, args=[client, q])
-            x.start()
-            console_message.start()
-            
         await client.change_presence(activity=discord.Game(name="Gone fishin' 🎣"))
         print(f'{client.user} is now running!')
     
@@ -135,7 +132,7 @@ def run_disc_bot():
         message = await channel.fetch_message(payload.message_id)
         message_author = message.author
         user = await client.fetch_user(int(payload.user_id))
-        emoji = str(payload.emoji)
+        emoji = str(payload.emoji) # replace with a PartialEmoji
         count = discord.utils.get(message.reactions, emoji=payload.emoji.name).count
         username = user.name
         
@@ -175,28 +172,17 @@ with {emoji} in #{channel} in {server}")
         else:
             await handle_event(message, user_message, channel, server, server_id, user_id, "message", username = username, user=message.author)
     
-    # Watch for tasks in queue
-    @tasks.loop(seconds=.1)
-    async def console_message(*args):
-        # Check if the q is empty
-        if q.empty():
-            return
-        # Iterate over q and execute all commands in it
-        for _ in range(q.qsize()):
-            item = q.get()
-            channel = item.get("channel")
-            server = item.get("server")
-            message = item.get("message")
-            await channel.send(message)
-            print(f"Said {message} in #{channel} in {server}")
-            q.task_done()
+    async def run_bot():
+        run_console = input("Run console? y/n: ") == "y"
+        discord.utils.setup_logging(root=False)
+        await asyncio.gather(
+            client.start(TOKEN),
+            chat_window.run_console(client, run_console)
+        )
+    try:
+        asyncio.run(run_bot())
+    except KeyboardInterrupt:
+        print("\nGoodbye!")
     
-    client.run(TOKEN)
-
-def open_chat_window(client, q):
-    chat_window.run_async_console(client, q)
-
-# Run the bot
-# I know it's not best practice, but I got tired of switching to a seperate file every time I wanted to test something
 if __name__ == "__main__":
     run_disc_bot()

@@ -3,7 +3,7 @@ import json
 import discord.embeds
 # List of minecraft potion effects for random potions
 effects = ()
-banned_users = (409071383004446720, 762031037852418058, 706256700813869096, 1131763352604000317, 629075346473353256)
+banned_users = (409071383004446720, 762031037852418058, 706256700813869096, 1131763352604000317, 629075346473353256, 714653407021105202)
 
 # Load list of fish for random fish
 with open('meta/list_of_fish.txt','r') as fish:
@@ -48,7 +48,7 @@ def start_fish(user_id, username):
         user_casts = 1
         rod_power = user_rod / 20
     else:
-        user_casts = int((user_rod - 4) * 3 / 5)
+        user_casts = int(user_rod-4)
         rod_power = user_rod / 20
     
     # Change the return system to allow notifications when bait runs out
@@ -145,20 +145,15 @@ def sell(user_id, index):
     
     # Read their inventory, stop at the index provided
     with open(f"inventories/{file_name}", 'r') as inv:
-        i=0
-        fish=""
-        for line in inv.readlines():
-            i+=1
-            if i != index:
-                continue
-            fish=line.strip('\n')
-            break
-        else:
-            # If they provided an index that's not in their inventory, return an error
+        # If they provided an index that's not in their inventory, return an error
+        user_inv = inv.readlines()
+        if (index > len(user_inv) or index < 1):
             return([{"type":"message","message":"Hey! What are you trying to pull?"}])
+        fish=user_inv[index-1]
         if fish == "":
             return([{"type":"message","message":"Hey! What are you trying to pull?"}])
-        if fish.startswith("Potion"):
+        if fish in treasure_list:
+            if fish.lower()=="midnight__sun": price+=450 
             price += 50
     return ([{"type":"message","message":f"I\'ll buy your {fish} for {price}, <@{user_id}>. Deal?","store_message":True, "metadata":{"user_id":user_id,"type":"sale","index":index,"price":price}}, \
         {"type":"react", "react":"✅", "self":True}, {"type":"react", "react":"❎", "self":True}])
@@ -198,8 +193,8 @@ def buy(index, user, user_id, shop_data, buff, to_increase, increase_by, **kwarg
     else:
         # Otherwise decrease their money and give them whatever they bought
         # Add a variable price for the fishing rod
-        if index == 0:
-            price = (user.get("rod")+1)*200
+        if name == "Fishing Rod Upgrade":
+            price = (user.get("rod")+1)*100
         user["money"] -= price
         match to_increase:
             case "rod":
