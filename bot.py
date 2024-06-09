@@ -132,7 +132,7 @@ def run_disc_bot():
         message = await channel.fetch_message(payload.message_id)
         message_author = message.author
         user = await client.fetch_user(int(payload.user_id))
-        emoji = str(payload.emoji) # replace with a PartialEmoji
+        emoji = discord.PartialEmoji(payload.emoji) # replace with a PartialEmoji
         count = discord.utils.get(message.reactions, emoji=payload.emoji.name).count
         username = user.name
         
