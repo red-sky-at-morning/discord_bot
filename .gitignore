@@ -164,13 +164,14 @@ cython_debug/
 
 __pycache__/
 .vscode/
-inventories/*
-meta/TOKEN.txt
+
 .cache
 test.py
 bin/
 include/
 pyvenv.cfg
 
-!inventories/inv_630837649963483179
-!inventories/README.md
+v1/inventories/*
+v1/meta/TOKEN.txt
+!v1/inventories/inv_630837649963483179
+!v1/inventories/README.md

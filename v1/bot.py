@@ -1,11 +1,9 @@
 import discord
-from discord.ext import tasks
 import responses
 import chat_window
 import asyncio
 import datetime as dt
 import queue
-import threading
 import json
 import argparse
 
@@ -19,9 +17,6 @@ open_chat = False
 
 async def handle_event(message, user_message, channel, server, server_id, user_id, event_type, **kwargs):
     response = (responses.handle_response(user_message, user_id, server, event_type, args=kwargs, messageable=message, server_id=server_id))
-    # Remove console spam
-    if not response:
-        return
     # Iterate over the response and execute the commands
     print(response)
     for item in response:
@@ -132,8 +127,8 @@ def run_disc_bot():
         message = await channel.fetch_message(payload.message_id)
         message_author = message.author
         user = await client.fetch_user(int(payload.user_id))
-        emoji = discord.PartialEmoji(payload.emoji) # replace with a PartialEmoji
-        count = discord.utils.get(message.reactions, emoji=payload.emoji.name).count
+        emoji = payload.emoji
+        count = discord.utils.get(message.reactions, emoji=emoji.name).count
         username = user.name
         
         # Don't respond to our own reactions
