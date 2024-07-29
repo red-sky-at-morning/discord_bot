@@ -17,6 +17,8 @@ open_chat = False
 
 async def handle_event(message, user_message, channel, server, server_id, user_id, event_type, **kwargs):
     response = (responses.handle_response(user_message, user_id, server, event_type, args=kwargs, messageable=message, server_id=server_id))
+    if response is None:
+        return
     # Iterate over the response and execute the commands
     print(response)
     for item in response:
@@ -128,7 +130,7 @@ def run_disc_bot():
         message_author = message.author
         user = await client.fetch_user(int(payload.user_id))
         emoji = payload.emoji
-        count = discord.utils.get(message.reactions, emoji=emoji.name).count
+        count = discord.utils.get(message.reactions, emoji=emoji).count
         username = user.name
         
         # Don't respond to our own reactions

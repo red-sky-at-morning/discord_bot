@@ -330,7 +330,7 @@ def handle_response(message, user_id: int, server, event_type, **kwargs):
             if item.get("type") == "sale":
                 if user_id != item.get("user_id"):
                     return
-                match message:
+                match message.name:
                     case "✅":
                         # Get the file id
                         file_name = "inv_" + str(item.get("user_id"))

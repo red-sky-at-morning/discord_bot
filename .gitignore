@@ -171,7 +171,9 @@ bin/
 include/
 pyvenv.cfg
 
-v1/inventories/*
-v1/meta/TOKEN.txt
-!v1/inventories/inv_630837649963483179
+**/inventories/*
+!**/inventories/inv_630837649963483179*
 !v1/inventories/README.md
+
+
+*/meta/TOKEN.txt

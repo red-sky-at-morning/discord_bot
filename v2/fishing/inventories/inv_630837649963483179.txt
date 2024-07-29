@@ -312,3 +312,8 @@ Atka mackerel
 Potion of jump boost
 Hog sucker
 Potion of night vision
+Potion of instant damage
+Fierasfer
+Longnose sucker
+Ballan wrasse
+Daggertooth pike conger
