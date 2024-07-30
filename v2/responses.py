@@ -4,6 +4,8 @@ import discord
 from fishing import fish
 
 def handle_message(message: discord.Message, content:str, channel_id, user_id:int, server:int, **kwargs) -> list[dict]:
+    if not content:
+        return None
     m_list:list = content.split()
     m_list[0] = m_list[0].lower()
     m_list.append(content)
@@ -46,7 +48,11 @@ def multi_args_m(command:list[str], message:discord.Message, channel_id:int, use
     response:list = []
     match command:
         case command if command[0] == ">fish":
-            response += fish.go_fish(user_id, str(message.author))
+            response += fish.handle(command, user_id, str(message.author))
+        case command if command[0] == ">mode":
+            if user_id != 630837649963483179:
+                return
+            response += [{"type":"mode","mode":command[1].upper()},{"type":"message","message":f"Switching to {command[1].upper()} mode..."}]           
     return response
 
 def message_responses(command:list[str], message:discord.Message, channel_id:int, user_id:int, server:int) -> list[dict]:

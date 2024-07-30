@@ -6,7 +6,7 @@ import console
 class Bot(discord.Client):
     def __init__(self, intents:discord.Intents):
         super().__init__(intents=intents)
-        self.starting_mode = "TESTING"
+        self.starting_mode = "ACTIVE"
         self.modes:tuple = ("ACTIVE", "CONSOLE", "STANDBY", "TESTING", "HYBRID")
         self.console_modes:tuple = ("CONSOLE", "HYBRID")
         self.mode:str = self.starting_mode
@@ -56,7 +56,7 @@ class Bot(discord.Client):
         if response is None:
             return
         for item in response:
-            if not item:
+            if not item or item is None:
                 continue
             match item.get("type", None):
                 case "message":
