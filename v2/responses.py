@@ -2,6 +2,7 @@ import random
 import discord
 
 from fishing import fish
+from shop import shop
 
 def handle_message(message: discord.Message, content:str, channel_id, user_id:int, server:int, **kwargs) -> list[dict]:
     if not content:
@@ -48,7 +49,13 @@ def multi_args_m(command:list[str], message:discord.Message, channel_id:int, use
     response:list = []
     match command:
         case command if command[0] == ">fish":
-            response += fish.handle(command, user_id, str(message.author))
+            response += fish.handle(command, user_id, str(message.author), message)
+        case command if command[0] == ">shop":
+            # if len(command) == 2:
+            #     response += shop.read_shop(user_id, "test")
+            # else:
+            #     response += shop.read_shop(user_id, command[1])
+            response += shop.read_shop(user_id, "test")
         case command if command[0] == ">mode":
             if user_id != 630837649963483179:
                 return

@@ -78,6 +78,8 @@ class Bot(discord.Client):
                     raise error
                 case "mode":
                     self.switch_mode(item.get("mode"))
+                case "call":
+                    response += await item.get("call")()
                 case None:
                     raise TypeError("No type provided for response")
                 case _:
