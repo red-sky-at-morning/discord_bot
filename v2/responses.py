@@ -65,3 +65,20 @@ def multi_args_m(command:list[str], message:discord.Message, channel_id:int, use
 def message_responses(command:list[str], message:discord.Message, channel_id:int, user_id:int, server:int) -> list[dict]:
     response:list = []
     return response
+
+def handle_react(message:discord.Message, emoji:discord.PartialEmoji, count, channel_id:int, user_id:int, server:int) -> list[dict]:
+    if not emoji:
+        return None
+    
+    response = []
+    response += make_sale(message, emoji, channel_id, user_id, server)
+
+    return response
+
+
+def make_sale(message:discord.Message, emoji:discord.PartialEmoji, channel_id, user_id, server) -> list[dict]:
+    if not shop.is_sale(user_id, message.id):
+        return []
+    
+    if emoji == "❎":
+        return []

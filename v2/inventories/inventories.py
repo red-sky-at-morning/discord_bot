@@ -1,3 +1,4 @@
+import builtins
 import json
 import os.path as path
 import os
@@ -13,7 +14,10 @@ def get_path(user_id:int) -> str:
             with open(f"{path_str}.txt", "r") as inv:
                 inv_list = [line.strip("\n") for line in inv.readlines()]
             os.remove(f"{path_str}.txt")
-        inv_dict = {"meta":{"id":user_id,"rod_level":0,"bait_level":0,"bait_time":0},"fish":inv_list}
+        with(open("inventories/meta/TEMPLATE.json")) as template:
+            inv_dict = json.load(template)
+        inv_dict["meta"]["id"] = user_id
+        inv_dict["fish"] = inv_list
         with open(f"{path_str}.json", "w") as inv:
             json.dump(inv_dict, inv)
         return f"{path_str}.json"
@@ -53,6 +57,18 @@ def read_one_from_inventory(user_id:int, idx:int) -> str:
 
 def get_meta(user_id):
     return get_data(user_id).get("meta")
+
+def add_meta(user_id, item, name):
+    user_path = get_path(user_id)
+    data = get_data(user_id)
+    match type(data["meta"].get(name)):
+        case builtins.list:
+            data["meta"][name].append(item)
+        case _:
+            data["meta"][name] = item
+    print(data["meta"])
+    with open(user_path, 'w') as inv:
+        json.dump(data,inv)
 
 def get_total_buffs(user_id:int) -> int:
     meta = get_meta(user_id)

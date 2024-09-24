@@ -23,7 +23,7 @@ def handle(command:list[str], user_id:int, username, message:discord.Message) ->
             except ValueError:
                 return([{"type":"message","message":"Sorry, I can't tell what page you're looking for. Try >fish inv 1"}])
         case "sell":
-            if len(command <= 3):
+            if len(command) <= 3:
                 return [{"type":"message","message":"Sorry, I can't tell what fish you're trying to sell. Try >fish sell 1"}]
             try:
                 return shop.sell_fish(user_id, (int(command[2])-1))

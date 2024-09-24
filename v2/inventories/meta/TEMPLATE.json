@@ -1,0 +1,12 @@
+{
+    "meta": {
+        "id": -1,
+        "rod_level": 0,
+        "bait_level": 0,
+        "bait_time": 0,
+        "money": 100,
+        "open_sales":{},
+        "open_shops":{}
+    },
+    "fish": []
+}

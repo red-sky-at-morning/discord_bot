@@ -177,7 +177,8 @@ v1/inventories/*
 
 v2/inventories/meta/*
 !v2/inventories/meta/inv_630837649963483179.json
+!v2/inventories/meta/TEMPLATE.json
 
 
 
-*/meta/TOKEN.txt
+**/TOKEN.txt
