@@ -9,8 +9,13 @@ async def handle_message(uinput, server, channel):
     print(f"Said {uinput} in #{channel} in {server}")
     return
 
-async def handle_command(client, uinput, servers, server, channels, channel):
-    if uinput[:7] == ".server":
+async def handle_command(client, uinput, servers:list, server:discord.Guild, channels, channel):
+    if uinput[:6] == ".leave":
+        print(f"leaving {server.name}")
+        await server.leave()
+        servers.remove(server)
+        server = servers[0]
+    elif uinput[:7] == ".server":
         uinput = uinput[7:].strip()
         try:
             uinput = int(uinput)
@@ -20,6 +25,7 @@ async def handle_command(client, uinput, servers, server, channels, channel):
                     print(guild.name.lower())
                 return ({"server":server,"channel":channel})
             for guild in servers:
+                guild:discord.Guild
                 if guild.name.lower() != uinput:
                     continue
                 server = guild
@@ -75,7 +81,7 @@ async def handle_command(client, uinput, servers, server, channels, channel):
         print("Command not found")
         return ({"server":server,"channel":channel})
 
-async def run(client):
+async def run(client:discord.Client):
     await client.wait_until_ready()
     servers = list(client.guilds)
     server = servers[0]

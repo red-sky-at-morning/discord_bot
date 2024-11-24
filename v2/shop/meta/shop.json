@@ -8,26 +8,46 @@
     },
     "test": {
         "url":"https://file.garden/ZU1C6Qx2nVLn6KQc/test.png",
+        "color":"random",
         "title":"Heban 'euna",
         "description":"Nsi uyo 'euna nin ur ruki'en ke khes.",
         "restrict_users":[630837649963483179],
+        "whitelist":true,
         "items": [
             {
                 "name": "Test item 1",
-                "order": 0,
                 "price": {
                     "type":"static",
                     "price":50
                 },
+                "desc":"desc 1",
                 "action":null
             },
             {
                 "name": "Test item 2",
-                "order": 0,
                 "price": {
                     "type":"static",
                     "price":75
                 },
+                "desc":"desc 2",
+                "action":null
+            },
+            {
+                "name": "Test item 3",
+                "price": {
+                    "type":"static",
+                    "price":75
+                },
+                "desc":"desc 3",
+                "action":null
+            },
+            {
+                "name": "Test item 4",
+                "price": {
+                    "type":"static",
+                    "price":75
+                },
+                "desc":"desc 4",
                 "action":null
             }
         ]
@@ -35,6 +55,7 @@
     "fish": {
         "url": "https://file.garden/ZU1C6Qx2nVLn6KQc/mark.png",
         "title": "Bass Pro Shop",
+        "color":"AAAAFF",
         "description": "Everything's for sale.",
         "items": [
             {
@@ -61,6 +82,7 @@
     "farm": {
         "url": "https://file.garden/ZU1C6Qx2nVLn6KQc/techno.png",
         "title": "The Great Potato Dome",
+        "color":"AAFFAA",
         "description": "I've seen irish famines with more potatoes than this.",
         "items": []
     }

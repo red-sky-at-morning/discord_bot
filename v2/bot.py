@@ -1,8 +1,9 @@
 import discord
+from discord.ext import commands
 import asyncio
 import responses
 from inventories import inventories
-import console
+from console import console
 
 class Bot(discord.Client):
     def __init__(self, intents:discord.Intents):
@@ -11,12 +12,14 @@ class Bot(discord.Client):
         self.modes:tuple = ("ACTIVE", "CONSOLE", "STANDBY", "TESTING", "HYBRID")
         self.console_modes:tuple = ("CONSOLE", "HYBRID")
         self.mode:str = self.starting_mode
-        self.ignore_errors:bool = False
+        self.ignore_errors:bool = True
         self.author:discord.User
         self.last_sent_message:discord.Message
 
     async def on_ready(self):
         self.author = await self.fetch_user(630837649963483179)
+        if self.mode == "TESTING":
+            self.ignore_errors = True
         await self.change_presence(activity=discord.Game("with code"))
         print(f"{self.user} is now running!")
 
@@ -76,6 +79,18 @@ class Bot(discord.Client):
                         for char in item.get("react"):
                             await message.add_reaction(char)
                     print(f"Reacted to {message.content} (by {message.author}) in {message.channel} in {message.channel.guild} with {item.get('react')}")
+                case "role":
+                    try:
+                        role = channel.guild.get_role(int(item.get("role").strip("@&<>")))
+                        user = await channel.guild.fetch_member(int(item.get("user").strip("@<>")))
+                        if user is None:
+                            await channel.send("No user found!")
+                        await user.add_roles(role)
+                        await channel.send(f"Added role with ID {role.id} to user <@{user.id}>")
+                    except discord.errors.PrivilegedIntentsRequired:
+                        await channel.send("You do not have permission to add roles to users")
+                    except ValueError:
+                        await channel.send("That is not a valid ID!")
                 case "wait":
                     print(f"Sleeping for {item.get('time', 0)} seconds...")
                     await asyncio.sleep(item.get("time"))
@@ -83,7 +98,7 @@ class Bot(discord.Client):
                     path = item.get("path")
                     store = item.get("extra")
                     store["id"] = self.last_sent_message.id
-                    inventories.add_meta(item.get("id"), store, item.get("name"))
+                    inventories.add_meta(item.get("id"), item.get("name"), store)
                 case "error":
                     error = item.get("error")
                     print(f"Raising error {error}")
@@ -99,10 +114,10 @@ class Bot(discord.Client):
     
     async def on_raw_reaction_add(self, payload:discord.RawReactionActionEvent):
 
-        server = await self.fetch_guild(payload.guild_id)
+        server:discord.Guild = await self.fetch_guild(payload.guild_id)
         channel = await self.fetch_channel(payload.channel_id)
         message = await channel.fetch_message(payload.message_id)
-        user = await self.fetch_user(int(payload.user_id))
+        user:discord.User = await server.fetch_member(int(payload.user_id))
 
         # Don't respond to our own reacts
         if user == self.user:
@@ -114,14 +129,15 @@ class Bot(discord.Client):
         username = user.name
         
         # Print to console
-        print(f"{username}/{user.nick} ({user.id}) reacted to {message.content} (by {message.author}) with {emoji} in #{channel} in {server}")
+        print(f"{username} ({user.id}) reacted to {message.content} (by {message.author}) with {emoji} in #{channel} in {server}")
 
         if not self.verify_mode(server.id, channel.id, user.id):
             return False
 
         response = responses.handle_react(message, emoji, count, channel.id, user.id, server.id)
-        await self.handle_response(response)
-        return False
+        print(response)
+        await self.handle_response(response, channel)
+        return True
 
     async def on_message(self, message:discord.Message):
         # Don't respond to our own messages

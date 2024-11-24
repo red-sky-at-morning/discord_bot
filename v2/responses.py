@@ -47,6 +47,7 @@ def single_args_m(command:str, message:discord.Message, channel_id:int, user_id:
 
 def multi_args_m(command:list[str], message:discord.Message, channel_id:int, user_id:int, server:int) -> list[dict]:
     response:list = []
+    print(command)
     match command:
         case command if command[0] == ">fish":
             response += fish.handle(command, user_id, str(message.author), message)
@@ -55,11 +56,15 @@ def multi_args_m(command:list[str], message:discord.Message, channel_id:int, use
             #     response += shop.read_shop(user_id, "test")
             # else:
             #     response += shop.read_shop(user_id, command[1])
-            response += shop.read_shop(user_id, "test")
+            shop_data = shop.read_shop(user_id, "test")
+            response += [{"type":"message","message":"", "embed":shop_data}]
         case command if command[0] == ">mode":
             if user_id != 630837649963483179:
                 return
-            response += [{"type":"mode","mode":command[1].upper()},{"type":"message","message":f"Switching to {command[1].upper()} mode..."}]           
+            response += [{"type":"mode","mode":command[1].upper()},{"type":"message","message":f"Switching to {command[1].upper()} mode..."}]
+        case command if command[0] == ">role":
+            if command[1] == "add":
+                response += [{"type":"role","role":command[2],"user":command[3]}]
     return response
 
 def message_responses(command:list[str], message:discord.Message, channel_id:int, user_id:int, server:int) -> list[dict]:
@@ -80,5 +85,9 @@ def make_sale(message:discord.Message, emoji:discord.PartialEmoji, channel_id, u
     if not shop.is_sale(user_id, message.id):
         return []
     
-    if emoji == "❎":
+    if emoji.name == "❎":
+        return shop.complete_sale(user_id, message.id, False)
+    elif emoji.name == "✅":
+        return shop.complete_sale(user_id, message.id, True)
+    else:
         return []

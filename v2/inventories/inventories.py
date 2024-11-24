@@ -39,8 +39,16 @@ def add_fish_to_inventory(user_id:int, item) -> bool:
         print(e)
         return False
 
-def remove_from_inventory(user_id:int, item) -> bool:
-    return False #TODO implement
+def remove_from_inventory(user_id:int, idx:int) -> bool:
+    try:
+        user_path = get_path(user_id)
+        data = get_data(user_id)
+        with open(user_path, "w") as inv:
+            data["fish"].pop(idx)
+            json.dump(data, inv)
+        return True
+    except Exception as e:
+        return False
 
 def read_range_from_inventory(user_id:int, username:str, user:discord.User, start_index:int, step:int) -> list[dict]:
     data = get_data(user_id)
@@ -58,7 +66,7 @@ def read_one_from_inventory(user_id:int, idx:int) -> str:
 def get_meta(user_id):
     return get_data(user_id).get("meta")
 
-def add_meta(user_id, item, name):
+def add_meta(user_id, name, item):
     user_path = get_path(user_id)
     data = get_data(user_id)
     match type(data["meta"].get(name)):

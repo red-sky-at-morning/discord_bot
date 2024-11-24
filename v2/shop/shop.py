@@ -15,8 +15,8 @@ def sell_fish(user_id:int, idx:int) -> list[dict]:
         raise FileNotFoundError("Could not read shop metadata")
     current_price = meta.get("fish_price", 0)
     if fish in treasure_list:
-        current_price*= meta.get("treasure_modifier",1.5)
-    return [{"type":"message","message":f"I'll buy your {fish} for {current_price}, <@{user_id}>!"}, {"type":"react", "react":"✅❎"}, {"type":"store", "name":"open_sale", "id":user_id, "extra": {"price":current_price}}]
+        current_price*= 2
+    return [{"type":"message","message":f"I'll buy your {fish} for {current_price}, <@{user_id}>!"}, {"type":"react", "react":"✅❎"}, {"type":"store", "name":"open_sale", "id":user_id, "extra": {"price":current_price, "index":idx}}]
 
 def is_sale(user_id, message_id) -> bool:
     meta = inventories.get_meta(user_id)
@@ -35,14 +35,31 @@ def complete_sale(user_id, message_id, succeed:bool) -> list[dict]:
     if not succeed:
         inventories.add_meta(user_id, "open_sale", {})
         return [{"type":"message","message":f"Don't waste my time, <@{user_id}>"}]
-    
-    return None
+    idx = meta.get("open_sale").get("index")
+    price = meta.get("open_sale").get("price")
+    money = meta.get("money") + price
+    inventories.add_meta(user_id, "open_sale", {})
+    inventories.add_meta(user_id, "money", money)
+    inventories.remove_from_inventory(user_id, idx)
+    return [{"type":"message","message":f"Pleasure doing business with you, <@{user_id}>"}]
 
-def read_shop(user_id:int, shop:str) -> dict | None:
-    shop = data.get(shop, None)
+def read_shop(user_id:int, shop:str) -> discord.Embed | None:
+    shop_data:dict = data.get(shop, None)
     if not shop:
         return None
-    return shop
+    restricted_users = shop_data.get("restrict_users")
+    if (user_id in restricted_users) != shop_data.get("whitelist"):
+        return None
+    color = shop_data.get("color")
+    if color != "random":
+        color = discord.Color.from_str(f"#{color}") 
+    else:
+        color = discord.Color.random()
+    embed = discord.Embed(color=color, title=shop_data.get("title"))
+    embed.set_thumbnail(url=shop_data.get("url", None))
+    for item in shop_data.get("items"):
+        embed.add_field(name=item.get("name"),value=item.get("desc"))
+    return embed
 
 def get_shop_message(user_id:int, shop:str) -> list[dict]:
     return None
