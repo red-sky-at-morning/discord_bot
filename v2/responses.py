@@ -52,12 +52,14 @@ def multi_args_m(command:list[str], message:discord.Message, channel_id:int, use
         case command if command[0] == ">fish":
             response += fish.handle(command, user_id, str(message.author), message)
         case command if command[0] == ">shop":
-            # if len(command) == 2:
-            #     response += shop.read_shop(user_id, "test")
-            # else:
-            #     response += shop.read_shop(user_id, command[1])
-            shop_data = shop.read_shop(user_id, "test")
-            response += [{"type":"message","message":"", "embed":shop_data}]
+            if len(command) == 2:
+                shop_data = shop.read_shop(user_id, "test")
+            else:
+                shop_data = shop.read_shop(user_id, command[1])
+            if shop_data == None:
+                response += [{"type":"message","message":"Hey! What are you trying to pull?"}]
+            else:
+                response += [{"type":"message","message":"", "embed":shop_data}]
         case command if command[0] == ">mode":
             if user_id != 630837649963483179:
                 return

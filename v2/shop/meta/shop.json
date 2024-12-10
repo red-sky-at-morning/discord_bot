@@ -44,8 +44,9 @@
             {
                 "name": "Test item 4",
                 "price": {
-                    "type":"static",
-                    "price":75
+                    "type":"dynamic",
+                    "attribute":"rod_level",
+                    "mult":50
                 },
                 "desc":"desc 4",
                 "action":null
@@ -73,7 +74,7 @@
                 "order": 1,
                 "price": {
                     "type": "static",
-                    "amount": "75"
+                    "price": "75"
                 },
                 "action": "shop.fish.increase_bait"
             }

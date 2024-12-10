@@ -44,14 +44,18 @@ def complete_sale(user_id, message_id, succeed:bool) -> list[dict]:
     return [{"type":"message","message":f"Pleasure doing business with you, <@{user_id}>"}]
 
 def calc_price(user_id:int, price:dict) -> int:
-    return -1
+    match price.get("type"):
+        case "static":
+            return price.get("price")
+        case "dynamic":
+            return -1 # TODO implement
 
 def read_shop(user_id:int, shop:str) -> discord.Embed | None:
     shop_data:dict = data.get(shop, None)
     if not shop:
         return None
-    restricted_users = shop_data.get("restrict_users")
-    if (user_id in restricted_users) != shop_data.get("whitelist"):
+    restricted_users = shop_data.get("restrict_users", [])
+    if (user_id in restricted_users) != shop_data.get("whitelist",False):
         return None
     color = shop_data.get("color")
     if color != "random":
@@ -62,7 +66,7 @@ def read_shop(user_id:int, shop:str) -> discord.Embed | None:
     embed.description = shop_data.get("desc")
     embed.set_thumbnail(url=shop_data.get("url", None))
     for item in shop_data.get("items"):
-        embed.add_field(name=item.get("name"),value=f"{item.get("desc")}\nPrice: ${(calc_price(user_id, item.get("price")))}")
+        embed.add_field(name=item.get("name"),value=f"{item.get('desc')}\nPrice: ${calc_price(user_id, item.get('price'))}")
     return embed
 
 def get_shop_message(user_id:int, shop:str) -> list[dict]:
