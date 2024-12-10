@@ -43,6 +43,9 @@ def complete_sale(user_id, message_id, succeed:bool) -> list[dict]:
     inventories.remove_from_inventory(user_id, idx)
     return [{"type":"message","message":f"Pleasure doing business with you, <@{user_id}>"}]
 
+def calc_price(user_id:int, price:dict) -> int:
+    return -1
+
 def read_shop(user_id:int, shop:str) -> discord.Embed | None:
     shop_data:dict = data.get(shop, None)
     if not shop:
@@ -56,9 +59,10 @@ def read_shop(user_id:int, shop:str) -> discord.Embed | None:
     else:
         color = discord.Color.random()
     embed = discord.Embed(color=color, title=shop_data.get("title"))
+    embed.description = shop_data.get("desc")
     embed.set_thumbnail(url=shop_data.get("url", None))
     for item in shop_data.get("items"):
-        embed.add_field(name=item.get("name"),value=item.get("desc"))
+        embed.add_field(name=item.get("name"),value=f"{item.get("desc")}\nPrice: ${(calc_price(user_id, item.get("price")))}")
     return embed
 
 def get_shop_message(user_id:int, shop:str) -> list[dict]:

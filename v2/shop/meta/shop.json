@@ -10,7 +10,7 @@
         "url":"https://file.garden/ZU1C6Qx2nVLn6KQc/test.png",
         "color":"random",
         "title":"Heban 'euna",
-        "description":"Nsi uyo 'euna nin ur ruki'en ke khes.",
+        "desc":"Nsi uyo 'euna nin ur ruki'en ke khes.",
         "restrict_users":[630837649963483179],
         "whitelist":true,
         "items": [
@@ -56,7 +56,7 @@
         "url": "https://file.garden/ZU1C6Qx2nVLn6KQc/mark.png",
         "title": "Bass Pro Shop",
         "color":"AAAAFF",
-        "description": "Everything's for sale.",
+        "desc": "Everything's for sale.",
         "items": [
             {
                 "name": "Fishing Rod Upgrade",
@@ -83,7 +83,7 @@
         "url": "https://file.garden/ZU1C6Qx2nVLn6KQc/techno.png",
         "title": "The Great Potato Dome",
         "color":"AAFFAA",
-        "description": "I've seen irish famines with more potatoes than this.",
+        "desc": "I've seen irish famines with more potatoes than this.",
         "items": []
     }
 }

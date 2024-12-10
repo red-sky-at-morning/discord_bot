@@ -1,5 +1,6 @@
 import random
 import discord
+import math
 
 from shop import shop
 from inventories import inventories
@@ -33,7 +34,7 @@ def handle(command:list[str], user_id:int, username, message:discord.Message) ->
             return([{"type":"message","message":"Sorry, I don't recognize that subcommand."}])
 
 def create_wait(user_id:int) -> list[dict]:
-    return [{"type":"message", "message":"The waters are stirring..."}, {"type":"wait","time":(7-(.5*inventories.get_total_buffs(user_id)))}]
+    return [{"type":"message", "message":"The waters are stirring..."}, {"type":"wait","time":(4-max(math.floor(.5*inventories.get_total_buffs(user_id)),0))}]
 
 def go_fish(user_id:int, username) -> list[dict]:
     response:list[dict] = create_wait(user_id)
