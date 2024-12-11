@@ -72,7 +72,7 @@ def multi_args_m(command:list[str], message:discord.Message, channel_id:int, use
 def message_responses(command:list[str], message:discord.Message, channel_id:int, user_id:int, server:int, mentioned:bool) -> list[dict]:
     response:list = []
     if mentioned:
-        responses = ("You called?", "haiiiiii", "OwO", "UwU", "Fuck off", "Bitch", "I'M HERE", ":3")
+        responses = ("You called?", "haiiiiii", "OwO", "UwU", "Fuck off", "Bitch", "I'M HERE", ":3", "At least take me to dinner first")
         response += [{"type":"message","message":responses[random.randint(0,len(responses)-1)]}]
     return response
 
