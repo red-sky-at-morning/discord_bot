@@ -11,9 +11,9 @@ def handle_message(message: discord.Message, content:str, channel_id, user_id:in
     m_list[0] = m_list[0].lower()
     m_list.append(content)
     response:list = []
-    response += single_args_m(m_list[0], message, channel_id, user_id, server)
     response += multi_args_m(m_list, message, channel_id, user_id, server)
-    response += message_responses(m_list, message, channel_id, user_id, server)
+    response += single_args_m(m_list[0], message, channel_id, user_id, server)
+    response += message_responses(m_list, message, channel_id, user_id, server, kwargs.get("mentioned"))
     return response
 
 def single_args_m(command:str, message:discord.Message, channel_id:int, user_id:int, server:int) -> list[dict]:
@@ -69,8 +69,11 @@ def multi_args_m(command:list[str], message:discord.Message, channel_id:int, use
                 response += [{"type":"role","role":command[2],"user":command[3]}]
     return response
 
-def message_responses(command:list[str], message:discord.Message, channel_id:int, user_id:int, server:int) -> list[dict]:
+def message_responses(command:list[str], message:discord.Message, channel_id:int, user_id:int, server:int, mentioned:bool) -> list[dict]:
     response:list = []
+    if mentioned:
+        responses = ("You called?", "haiiiiii", "OwO", "UwU", "Fuck off", "Bitch", "I'M HERE", ":3")
+        response += [{"type":"message","message":responses[random.randint(0,len(responses)-1)]}]
     return response
 
 def handle_react(message:discord.Message, emoji:discord.PartialEmoji, count, channel_id:int, user_id:int, server:int) -> list[dict]:

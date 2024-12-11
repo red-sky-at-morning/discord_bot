@@ -8,7 +8,7 @@ from console import console
 class Bot(discord.Client):
     def __init__(self, intents:discord.Intents):
         super().__init__(intents=intents)
-        self.starting_mode = "CONSOLE"
+        self.starting_mode = "STANDBY"
         self.modes:tuple = ("ACTIVE", "CONSOLE", "STANDBY", "TESTING", "HYBRID")
         self.console_modes:tuple = ("CONSOLE", "HYBRID")
         self.mode:str = self.starting_mode
@@ -162,7 +162,7 @@ class Bot(discord.Client):
         if not self.verify_mode(server_id, channel_id, user_id):
             return False
 
-        response = responses.handle_message(message, content, channel_id, user_id, server_id)
+        response = responses.handle_message(message, content, channel_id, user_id, server_id, mentioned=self.user.mentioned_in(message))
         await self.handle_response(response, channel)
 
         return True

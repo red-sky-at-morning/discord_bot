@@ -20,7 +20,7 @@ def sell_fish(user_id:int, idx:int) -> list[dict]:
 
 def is_sale(user_id, message_id) -> bool:
     meta = inventories.get_meta(user_id)
-    if message_id == meta.get("open_sale").get("id"):
+    if message_id == meta.get("open_sales").get("id"):
         return True
     return False
 
