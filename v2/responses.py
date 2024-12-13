@@ -47,7 +47,7 @@ def single_args_m(command:str, message:discord.Message, channel_id:int, user_id:
 
 def multi_args_m(command:list[str], message:discord.Message, channel_id:int, user_id:int, server:int) -> list[dict]:
     response:list = []
-    print(command)
+    # print(command)
     match command:
         case command if command[0] == ">fish":
             response += fish.handle(command, user_id, str(message.author), message)

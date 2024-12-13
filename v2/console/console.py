@@ -81,15 +81,21 @@ async def handle_command(client, uinput, servers:list, server:discord.Guild, cha
         print("Command not found")
         return ({"server":server,"channel":channel})
 
-async def run(client:discord.Client):
+async def run(client:discord.Client, server_id:int, channel_id:int):
     await client.wait_until_ready()
     servers = list(client.guilds)
-    server = servers[0]
+    try:
+        server = servers[servers.index(await client.fetch_guild(server_id))]
+    except IndexError:
+        server = servers[0]
     channels = list(server.text_channels)
     for channel in list(channels):
         if client.user not in channel.members:
             channels.pop(channels.index(channel))
-    channel = channels[0]
+    try:
+        channel = channels[channels.index(await server.fetch_channel(channel_id))]
+    except IndexError:
+        channel = channels[0]
     
     while True:
         try:

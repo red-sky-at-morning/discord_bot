@@ -8,11 +8,16 @@ from console import console
 class Bot(discord.Client):
     def __init__(self, intents:discord.Intents):
         super().__init__(intents=intents)
-        self.starting_mode = "STANDBY"
+        self.starting_mode = "ACTIVE"
+        self.starting_server = 1224530294560915589
+        self.starting_channel = 1224530295030546432
+
         self.modes:tuple = ("ACTIVE", "CONSOLE", "STANDBY", "TESTING", "HYBRID")
         self.console_modes:tuple = ("CONSOLE", "HYBRID")
         self.mode:str = self.starting_mode
+
         self.ignore_errors:bool = True
+
         self.author:discord.User
         self.last_sent_message:discord.Message
 
@@ -20,7 +25,7 @@ class Bot(discord.Client):
         self.author = await self.fetch_user(630837649963483179)
         if self.mode == "TESTING":
             self.ignore_errors = True
-        await self.change_presence(activity=discord.Game("with code"))
+        await self.change_presence(activity=discord.Game(f"in {self.mode} mode"))
         print(f"{self.user} is now running!")
 
     async def send_dm(self, user:discord.User, content:str) -> None:
@@ -34,14 +39,15 @@ class Bot(discord.Client):
         await self.send_dm(self.author, f"{extype.__name__} exception in {event}: {ex}\n{trace}")
         if self.ignore_errors:
             return
-        print("Entering Standby mode...")
+        await self.switch_mode("STANDBY")
         await self.send_dm(self.author, "Entering Standby mode...")
         self.mode = self.modes[2]
     
-    def switch_mode(self, mode) -> None:
+    async def switch_mode(self, mode) -> None:
         if mode not in self.modes:
             raise TypeError(f"Mode not found in mode list: {mode}")
         print(f"Switching to mode {mode}")
+        await self.change_presence(activity=discord.Game(f"in {mode} mode"))
         self.mode = mode
     
     def verify_mode(self, server:int, channel:int, user:int) -> bool:
@@ -104,7 +110,7 @@ class Bot(discord.Client):
                     print(f"Raising error {error}")
                     raise error
                 case "mode":
-                    self.switch_mode(item.get("mode"))
+                    await self.switch_mode(item.get("mode"))
                 case "call":
                     response += await item.get("call")()
                 case None:
@@ -157,7 +163,7 @@ class Bot(discord.Client):
         user_id = int(message.author.id)
 
         # Print to console
-        print(f"{username}/{message.author.nick} ({user_id}) said {content} in #{channel} in {server}")
+        print(f"{username}{f" / {message.author.nick}" if type(message.author) == discord.Member else ""} ({user_id}) said {content} in #{channel} in {server}")
 
         if not self.verify_mode(server_id, channel_id, user_id):
             return False
@@ -174,7 +180,7 @@ class Bot(discord.Client):
             discord.utils.setup_logging(root=False)
             await asyncio.gather(
                 self.start(TOKEN),
-                console.run(self)
+                console.run(self, self.starting_server, self.starting_channel)
             )
         try:
             asyncio.run(run())
