@@ -97,6 +97,13 @@ class Bot(discord.Client):
                         await channel.send("You do not have permission to add roles to users")
                     except ValueError:
                         await channel.send("That is not a valid ID!")
+                case "delete":
+                    try:
+                        temp_channel = await self.fetch_channel(item.get("channel"))
+                        message = await channel.fetch_message(item.get("message"))
+                        await message.delete()
+                    except discord.errors.PrivilegedIntentsRequired:
+                        await channel.send("You do not have permission to delete messages")
                 case "wait":
                     print(f"Sleeping for {item.get('time', 0)} seconds...")
                     await asyncio.sleep(item.get("time"))
@@ -163,7 +170,7 @@ class Bot(discord.Client):
         user_id = int(message.author.id)
 
         # Print to console
-        print(f"{username}{f" / {message.author.nick}" if type(message.author) == discord.Member else ""} ({user_id}) said {content} in #{channel} in {server}")
+        print(f"{username}{f' / {message.author.nick}' if type(message.author) == discord.Member else ""} ({user_id}) said {content} in #{channel} in {server}")
 
         if not self.verify_mode(server_id, channel_id, user_id):
             return False

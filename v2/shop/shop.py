@@ -5,8 +5,9 @@ from inventories import inventories
 
 with open("shop/meta/shop.json", "r") as shop:
     data:dict = json.load(shop)
-with open("fishing/meta/treasure.txt", "r") as treasure:
-    treasure_list = treasure.readlines()
+
+with open("fishing/meta/fish.txt", "r") as fish:
+    fish_list = [line.strip("\n") for line in fish.readlines()]
 
 def sell_fish(user_id:int, idx:int) -> list[dict]:
     fish = inventories.read_one_from_inventory(user_id, idx)
@@ -14,12 +15,14 @@ def sell_fish(user_id:int, idx:int) -> list[dict]:
     if meta is None:
         raise FileNotFoundError("Could not read shop metadata")
     current_price = meta.get("fish_price", 0)
-    if fish in treasure_list:
-        current_price*= 2
-    return [{"type":"message","message":f"I'll buy your {fish} for {current_price}, <@{user_id}>!"}, {"type":"react", "react":"✅❎"}, {"type":"store", "name":"open_sale", "id":user_id, "extra": {"price":current_price, "index":idx}}]
+    if fish.strip("\n") not in fish_list:
+        current_price*= meta.get("treasure_modifier")
+    return [{"type":"message","message":f"I'll buy your {fish} for {current_price}, <@{user_id}>!"}, {"type":"react", "react":"✅❎"}, {"type":"store", "name":"open_sales", "id":user_id, "extra": {"price":current_price, "index":idx}}]
 
 def is_sale(user_id, message_id) -> bool:
     meta = inventories.get_meta(user_id)
+    print(message_id)
+    print(meta.get("open_sales").get("id"))
     if message_id == meta.get("open_sales").get("id"):
         return True
     return False
@@ -32,13 +35,12 @@ def is_shop(user_id, message_id) -> bool:
 
 def complete_sale(user_id, message_id, succeed:bool) -> list[dict]:
     meta = inventories.get_meta(user_id)
+    inventories.add_meta(user_id, "open_sales", {})
     if not succeed:
-        inventories.add_meta(user_id, "open_sale", {})
         return [{"type":"message","message":f"Don't waste my time, <@{user_id}>"}]
-    idx = meta.get("open_sale").get("index")
-    price = meta.get("open_sale").get("price")
+    idx = meta.get("open_sales").get("index")
+    price = meta.get("open_sales").get("price")
     money = meta.get("money") + price
-    inventories.add_meta(user_id, "open_sale", {})
     inventories.add_meta(user_id, "money", money)
     inventories.remove_from_inventory(user_id, idx)
     return [{"type":"message","message":f"Pleasure doing business with you, <@{user_id}>"}]

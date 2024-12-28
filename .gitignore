@@ -179,6 +179,6 @@ v2/inventories/meta/*
 !v2/inventories/meta/inv_630837649963483179.json
 !v2/inventories/meta/TEMPLATE.json
 
-
+venv_old/
 
 **/TOKEN.txt

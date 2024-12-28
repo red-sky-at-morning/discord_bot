@@ -22,8 +22,7 @@ def single_args_m(command:str, message:discord.Message, channel_id:int, user_id:
     response:list = []
     if command[0] != cmd_prefix:
         return response
-    command = command[1:]
-    match command:
+    match command[1:]:
         case 'test':
             response.append({"type": "message", "message": "Hello World!"})
         case 'test1':
@@ -48,14 +47,16 @@ def single_args_m(command:str, message:discord.Message, channel_id:int, user_id:
         case "test6":
             response.append({"type":"message","message":"Throwing exception and entering standby mode..."})
             response.append({"type":"error","error":Exception("Error for testing")})
+        case "test7":
+            response.append({"type":"message","message":"Goodbye world!"})
+            response.append({"type":"delete","message":message.id, "channel":message.channel.id})
     return response
 
 def multi_args_m(command:list[str], message:discord.Message, channel_id:int, user_id:int, server:int) -> list[dict]:
     response:list = []
     if command[0][0] != cmd_prefix:
         return response
-    command[0] = command[0][1:]
-    match command[0]:
+    match command[0][1:]:
         case "fish":
             response += fish.handle(command, user_id, str(message.author), message)
         case "shop":
@@ -74,12 +75,14 @@ def multi_args_m(command:list[str], message:discord.Message, channel_id:int, use
         case "role":
             if command[1] == "add":
                 response += [{"type":"role","role":command[2],"user":command[3]}]
+        case "echo":
+            response += [{"type":"message","message":command[-1].removeprefix(f"{cmd_prefix}echo ")},{"type":"delete","message":message.id,"channel":message.channel.id}]
     return response
 
 def message_responses(command:list[str], message:discord.Message, channel_id:int, user_id:int, server:int, mentioned:bool) -> list[dict]:
     response:list = []
     if mentioned:
-        responses = ("You called?", "haiiiiii", "OwO", "UwU", "Fuck off", "Bitch", "I'M HERE", ":3", "At least take me to dinner first")
+        responses = ("You called?", "haiiiiii", "OwO", "UwU", "Fuck off", "Bitch", "I'M HERE", ":3", "At least take me to dinner first", "You what", "Find my pages")
         response += [{"type":"message","message":responses[random.randint(0,len(responses)-1)]}]
     return response
 

@@ -4,6 +4,9 @@ import os.path as path
 import os
 import discord
 
+with open("fishing/meta/fish.txt", "r") as fish:
+    fish_list = [line.strip("\n") for line in fish.readlines()]
+    
 def get_path(user_id:int) -> str:
     path_str:str = f"inventories/meta/inv_{user_id}"
     if path.isfile(f"{path_str}.json"):
@@ -52,7 +55,7 @@ def remove_from_inventory(user_id:int, idx:int) -> bool:
 
 def read_range_from_inventory(user_id:int, username:str, user:discord.User, start_index:int, step:int) -> list[dict]:
     data = get_data(user_id)
-    inventory = [f"{data['fish'].index(line)+1}. {line}" for line in data["fish"][start_index:start_index+step]]
+    inventory = [(f"{data['fish'].index(line)+1}. {f'*{line}*' if line not in fish_list else line}") for line in data["fish"][start_index:start_index+step]]
     response = str(inventory).replace('"', "'").replace("', '", "\n").strip("[']")
     embed = discord.Embed(title=f"{username}'s Tank", description=f"Page {int(start_index/20)+1} ({start_index+1} - {start_index + step+1})", color=0x6699ff)
     embed.set_thumbnail(url=user.avatar.url)

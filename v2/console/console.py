@@ -88,8 +88,6 @@ async def run(client:discord.Client, server_id:int, channel_id:int):
         server = servers[servers.index(await client.fetch_guild(server_id))]
     except IndexError:
         server = servers[0]
-    print(servers)
-    server = servers[0]
     channels = list(server.text_channels)
     for channel in list(channels):
         if client.user not in channel.members:
