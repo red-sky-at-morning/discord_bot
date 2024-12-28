@@ -4,6 +4,8 @@ import discord
 from fishing import fish
 from shop import shop
 
+cmd_prefix:str = '?'
+
 def handle_message(message: discord.Message, content:str, channel_id, user_id:int, server:int, **kwargs) -> list[dict]:
     if not content:
         return None
@@ -18,40 +20,45 @@ def handle_message(message: discord.Message, content:str, channel_id, user_id:in
 
 def single_args_m(command:str, message:discord.Message, channel_id:int, user_id:int, server:int) -> list[dict]:
     response:list = []
+    if command[0] != cmd_prefix:
+        return response
+    command = command[1:]
     match command:
-        case '>test':
+        case 'test':
             response.append({"type": "message", "message": "Hello World!"})
-        case '>test1':
+        case 'test1':
             response.append({"type": "message", "message": "Hello World!"})
 
-        case '>test2':
+        case 'test2':
             response.append({"type": "message", "message": "Starting..."})
             response.append({"type": "wait", "time": 5})
             response.append({"type": "message", "message": "Finished!"})
 
-        case '>test3':
+        case 'test3':
             response.append({"type": "message", "message": "Okay!"})
             response.append({"type": "react", "react": "👍", "message":message})
         
-        case '>test4':
+        case 'test4':
             response.append({"type":"reply", "message":"Hello World!", "reply":message})
-        case '>test5':
+        case 'test5':
             embedVar = discord.Embed(title="Title", description="Desc", color=0x00ff00)
             embedVar.add_field(name="Field1", value="hi", inline=False)
             embedVar.add_field(name="Field2", value="hi2", inline=False)
             return([{"type":"message", "message":"", "embed":embedVar}])
-        case ">test6":
+        case "test6":
             response.append({"type":"message","message":"Throwing exception and entering standby mode..."})
             response.append({"type":"error","error":Exception("Error for testing")})
     return response
 
 def multi_args_m(command:list[str], message:discord.Message, channel_id:int, user_id:int, server:int) -> list[dict]:
     response:list = []
-    # print(command)
-    match command:
-        case command if command[0] == ">fish":
+    if command[0][0] != cmd_prefix:
+        return response
+    command[0] = command[0][1:]
+    match command[0]:
+        case "fish":
             response += fish.handle(command, user_id, str(message.author), message)
-        case command if command[0] == ">shop":
+        case "shop":
             if len(command) == 2:
                 shop_data = shop.read_shop(user_id, "test")
             else:
@@ -60,11 +67,11 @@ def multi_args_m(command:list[str], message:discord.Message, channel_id:int, use
                 response += [{"type":"message","message":"Hey! What are you trying to pull?"}]
             else:
                 response += [{"type":"message","message":"", "embed":shop_data}]
-        case command if command[0] == ">mode":
+        case "mode":
             if user_id != 630837649963483179:
                 return
             response += [{"type":"mode","mode":command[1].upper()},{"type":"message","message":f"Switching to {command[1].upper()} mode..."}]
-        case command if command[0] == ">role":
+        case "role":
             if command[1] == "add":
                 response += [{"type":"role","role":command[2],"user":command[3]}]
     return response
