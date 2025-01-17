@@ -8,7 +8,7 @@ from console import console
 class Bot(discord.Client):
     def __init__(self, intents:discord.Intents):
         super().__init__(intents=intents)
-        self.starting_mode = "ACTIVE"
+        self.starting_mode = "CONSOLE"
         self.starting_server = 1224530294560915589
         self.starting_channel = 1224530295030546432
 
@@ -136,9 +136,9 @@ class Bot(discord.Client):
         if user == self.user:
             return
 
-        emoji = payload.emoji
-        print(message.reactions)
-        count = discord.utils.get(message.reactions, emoji=emoji.name).count
+        emoji:discord.PartialEmoji = payload.emoji
+        # print(message.reactions)
+        count = discord.utils.get(message.reactions, emoji=emoji).count
         username = user.name
         
         # Print to console

@@ -76,7 +76,8 @@ def multi_args_m(command:list[str], message:discord.Message, channel_id:int, use
             if command[1] == "add":
                 response += [{"type":"role","role":command[2],"user":command[3]}]
         case "echo":
-            response += [{"type":"message","message":command[-1].removeprefix(f"{cmd_prefix}echo ")},{"type":"delete","message":message.id,"channel":message.channel.id}]
+            if cmd_prefix != "?":
+                response += [{"type":"message","message":command[-1].removeprefix(f"{cmd_prefix}echo ")},{"type":"delete","message":message.id,"channel":message.channel.id}]
     return response
 
 def message_responses(command:list[str], message:discord.Message, channel_id:int, user_id:int, server:int, mentioned:bool) -> list[dict]:
