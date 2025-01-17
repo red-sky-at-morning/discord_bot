@@ -5,6 +5,7 @@ from fishing import fish
 from shop import shop
 
 cmd_prefix:str = '?'
+dev_id = 630837649963483179
 
 def handle_message(message: discord.Message, content:str, channel_id, user_id:int, server:int, **kwargs) -> list[dict]:
     if not content:
@@ -13,9 +14,24 @@ def handle_message(message: discord.Message, content:str, channel_id, user_id:in
     m_list[0] = m_list[0].lower()
     m_list.append(content)
     response:list = []
+    response += dev_commands(m_list, message, channel_id, user_id, server)
     response += multi_args_m(m_list, message, channel_id, user_id, server)
     response += single_args_m(m_list[0], message, channel_id, user_id, server)
     response += message_responses(m_list, message, channel_id, user_id, server, kwargs.get("mentioned"))
+    return response
+
+def dev_commands(command:list[str], message:discord.Message, channel_id:int, user_id:int, server:int) -> list[dict]:
+    response:list = []
+    if command[0][0] != cmd_prefix:
+        return response
+    if user_id != dev_id:
+        return response
+    match command[0][1:]:
+        case "toggle-error-standby":
+            response.append({"type":"message","message":"Toggling switching to Standby mode on error..."})
+            response.append({"type":"special","action":"toggle_error_standby"})
+        case "mode":
+            response += [{"type":"mode","mode":command[1].upper()},{"type":"message","message":f"Switching to {command[1].upper()} mode..."}]
     return response
 
 def single_args_m(command:str, message:discord.Message, channel_id:int, user_id:int, server:int) -> list[dict]:
@@ -50,9 +66,6 @@ def single_args_m(command:str, message:discord.Message, channel_id:int, user_id:
         case "test7":
             response.append({"type":"message","message":"Goodbye world!"})
             response.append({"type":"delete","message":message.id, "channel":message.channel.id})
-        case "toggle_error_standby":
-            response.append({"type":"message","message":"Toggling switching to Standby mode on error..."})
-            response.append({"type":"special","action":"toggle_error_standby"})
     return response
 
 def multi_args_m(command:list[str], message:discord.Message, channel_id:int, user_id:int, server:int) -> list[dict]:
@@ -71,10 +84,6 @@ def multi_args_m(command:list[str], message:discord.Message, channel_id:int, use
                 response += [{"type":"message","message":"Hey! What are you trying to pull?"}]
             else:
                 response += [{"type":"message","message":"", "embed":shop_data}]
-        case "mode":
-            if user_id != 630837649963483179:
-                return
-            response += [{"type":"mode","mode":command[1].upper()},{"type":"message","message":f"Switching to {command[1].upper()} mode..."}]
         case "role":
             if command[1] == "add":
                 response += [{"type":"role","role":command[2],"user":command[3]}]
