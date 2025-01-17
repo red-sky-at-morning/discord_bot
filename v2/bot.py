@@ -33,10 +33,10 @@ class Bot(discord.Client):
         await channel.send(content)
     
     async def on_error(self, event:str, *args, **kwargs):
-        import sys
-        extype, ex, trace = sys.exc_info()
-        print(f"{extype.__name__} exception in {event}: {ex}\n{trace}")
-        await self.send_dm(self.author, f"{extype.__name__} exception in {event}: {ex}\n{trace}")
+        import sys, traceback
+        extype, ex = sys.exc_info()
+        print(f"{extype.__name__} exception in {event}: {ex}\n{traceback.format_exc()}")
+        await self.send_dm(self.author, f"{extype.__name__} exception in {event}: {ex}\n{traceback.format_exc()}")
         if self.ignore_errors:
             return
         await self.switch_mode("STANDBY")
@@ -120,6 +120,12 @@ class Bot(discord.Client):
                     await self.switch_mode(item.get("mode"))
                 case "call":
                     response += await item.get("call")()
+                case "special":
+                    match item.get("action"):
+                        case "toggle_error_standby":
+                            self.ignore_errors = not self.ignore_errors
+                        case _:
+                            raise TypeError("Unexpected action in response")
                 case None:
                     raise TypeError("No type provided for response")
                 case _:

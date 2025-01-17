@@ -50,6 +50,9 @@ def single_args_m(command:str, message:discord.Message, channel_id:int, user_id:
         case "test7":
             response.append({"type":"message","message":"Goodbye world!"})
             response.append({"type":"delete","message":message.id, "channel":message.channel.id})
+        case "toggle_error_standby":
+            response.append({"type":"message","message":"Toggling switching to Standby mode on error..."})
+            response.append({"type":"special","action":"toggle_error_standby"})
     return response
 
 def multi_args_m(command:list[str], message:discord.Message, channel_id:int, user_id:int, server:int) -> list[dict]:
