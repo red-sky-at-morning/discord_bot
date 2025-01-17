@@ -34,7 +34,7 @@ class Bot(discord.Client):
     
     async def on_error(self, event:str, *args, **kwargs):
         import sys, traceback
-        extype, ex = sys.exc_info()
+        extype, ex, _ = sys.exc_info()
         print(f"{extype.__name__} exception in {event}: {ex}\n{traceback.format_exc()}")
         await self.send_dm(self.author, f"{extype.__name__} exception in {event}: {ex}\n{traceback.format_exc()}")
         if self.ignore_errors:
