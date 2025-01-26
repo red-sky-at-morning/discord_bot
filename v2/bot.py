@@ -142,18 +142,17 @@ class Bot(discord.Client):
         if user == self.user:
             return
 
-        emoji:discord.PartialEmoji = payload.emoji
-        # print(message.reactions)
-        count = discord.utils.get(message.reactions, emoji=emoji).count
+        character:discord.PartialEmoji = payload.emoji
+        count = discord.utils.get(message.reactions, emoji=character.name).count
         username = user.name
         
         # Print to console
-        print(f"{username} ({user.id}) reacted to {message.content} (by {message.author}) with {emoji} in #{channel} in {server}")
+        print(f"{username} ({user.id}) reacted to {message.content} (by {message.author}) with {character.name} in #{channel} in {server}")
 
         if not self.verify_mode(server.id, channel.id, user.id):
             return False
 
-        response = responses.handle_react(message, emoji, count, channel.id, user.id, server.id)
+        response = responses.handle_react(message, character, count, channel.id, user.id, server.id)
         print(response)
         await self.handle_response(response, channel)
         return True
