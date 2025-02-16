@@ -79,13 +79,9 @@ def multi_args_m(command:list[str], message:discord.Message, channel_id:int, use
             response += fish.handle(command, user_id, str(message.author), message)
         case "shop":
             if len(command) == 2:
-                shop_data = shop.read_shop(user_id, "test")
+                response += shop.get_shop_message(user_id, "test")
             else:
-                shop_data = shop.read_shop(user_id, command[1])
-            if shop_data == None:
-                response += [{"type":"message","message":"Hey! What are you trying to pull?"}]
-            else:
-                response += [{"type":"message","message":"", "embed":shop_data}]
+                response += shop.get_shop_message(user_id, command[1])
         case "role":
             if command[1] == "add":
                 response += [{"type":"role","role":command[2],"user":command[3]}]

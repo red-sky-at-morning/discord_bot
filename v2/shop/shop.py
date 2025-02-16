@@ -50,11 +50,19 @@ def calc_price(user_id:int, price:dict) -> int:
         case "static":
             return price.get("price")
         case "dynamic":
-            return -1 # TODO implement
+            stat = price.get("attribute")
+            user_val = inventories.read_one_meta(user_id, stat)
+            return price.get("mult") * user_val
+        
+def read_shop(shop:str) -> dict | None:
+    shop_data:dict = data.get(shop, None)
+    if not shop_data:
+        return None
+    return shop_data
 
 def get_shop_embed(user_id:int, shop:str) -> discord.Embed | None:
-    shop_data:dict = data.get(shop, None)
-    if not shop:
+    shop_data:dict = read_shop(shop)
+    if not shop_data:
         return None
     restricted_users = shop_data.get("restrict_users", [])
     if (user_id in restricted_users) != shop_data.get("whitelist",False):
@@ -71,11 +79,14 @@ def get_shop_embed(user_id:int, shop:str) -> discord.Embed | None:
         embed.add_field(name=item.get("name"),value=f"{item.get('desc')}\nPrice: ${calc_price(user_id, item.get('price'))}")
     return embed
 
-number_reacts:tuple = ("0️⃣","1️⃣","2️⃣","3️⃣","4️⃣","5️⃣","6️⃣","7️⃣","8️⃣","9️⃣","⬅️","➡️")
+number_reacts:tuple = ("1️⃣","2️⃣","3️⃣","4️⃣","5️⃣","6️⃣","7️⃣","8️⃣","9️⃣","0️⃣","⬅️","➡️")
 def get_shop_message(user_id:int, shop:str) -> list[dict]:
-    shop_data:dict = data.get(shop, None)
-    if not shop:
-        return []
+    shop_data:dict = read_shop(shop)
+    if not shop_data:
+        return [{"type":"message","message":"Hey! What are you trying to pull?"}]
+    embed = get_shop_embed(user_id, shop)
+    nums = number_reacts[0:len(shop_data.get("items"))]
+    return [{"type":"message","message":"","embed":embed},{"type":"react","react":nums}]
 
 def read_item(user_id:int, shop:str, index:int) -> dict:
     pass

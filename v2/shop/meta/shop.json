@@ -21,7 +21,11 @@
                     "price":50
                 },
                 "desc":"desc 1",
-                "action":null
+                "action": {
+                    "category":"meta",
+                    "action":"message",
+                    "message":"test_message"
+                }
             },
             {
                 "name": "Test item 2",
@@ -67,7 +71,10 @@
                     "attribute": "rod_level",
                     "mult": 50
                 },
-                "action": "shop.fish.increase_rod_level"
+                "action": {
+                    "category":"fish",
+                    "action":"increase_rod_level"
+                }
             },
             {
                 "name": "Fishing Bait",
@@ -76,7 +83,10 @@
                     "type": "static",
                     "price": "75"
                 },
-                "action": "shop.fish.increase_bait"
+                "action": {
+                    "category":"fish",
+                    "action":"increase_bait"
+                }
             }
         ]
     },

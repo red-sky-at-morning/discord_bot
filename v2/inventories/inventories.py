@@ -93,3 +93,13 @@ def read_meta(user_id:int, username:str, user:discord.User) -> list[dict]:
     embed.add_field(name="Rod Level:", value=data.get("meta").get("rod_level"), inline=False)
     embed.add_field(name="Money:", value=data.get("meta").get("money"), inline=False)
     return [{"type":"message","message":"","embed":embed}]
+
+def read_one_meta(user_id:int, attr:str) -> int:
+    data = get_data(user_id)
+    val = data.get("meta").get(attr)
+    match val:
+        case int():
+            return val
+        case list():
+            return len(val)
+

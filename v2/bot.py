@@ -8,7 +8,7 @@ from console import console
 class Bot(discord.Client):
     def __init__(self, intents:discord.Intents):
         super().__init__(intents=intents)
-        self.starting_mode = "CONSOLE"
+        self.starting_mode = "HYBRID"
         self.starting_server = 1224530294560915589
         self.starting_channel = 1224530295030546432
 
@@ -36,7 +36,7 @@ class Bot(discord.Client):
         import sys, traceback
         extype, ex, _ = sys.exc_info()
         print(f"{extype.__name__} exception in {event}: {ex}\n{traceback.format_exc()}")
-        await self.send_dm(self.author, f"{extype.__name__} exception in {event}: {ex}\n{traceback.format_exc()}")
+        await self.send_dm(self.author, f"{extype.__name__} exception in {event}: ```{ex}\n{traceback.format_exc()}```")
         if self.ignore_errors:
             return
         await self.switch_mode("STANDBY")
