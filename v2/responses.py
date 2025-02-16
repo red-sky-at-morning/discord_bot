@@ -32,6 +32,8 @@ def dev_commands(command:list[str], message:discord.Message, channel_id:int, use
             response.append({"type":"special","action":"toggle_error_standby"})
         case "mode":
             response += [{"type":"mode","mode":command[1].upper()},{"type":"message","message":f"Switching to {command[1].upper()} mode..."}]
+        case "echo":
+            response += [{"type":"message","message":command[-1].removeprefix(f"{cmd_prefix}echo ")},{"type":"delete","message":message.id,"channel":message.channel.id}]
     return response
 
 def single_args_m(command:str, message:discord.Message, channel_id:int, user_id:int, server:int) -> list[dict]:
@@ -87,9 +89,6 @@ def multi_args_m(command:list[str], message:discord.Message, channel_id:int, use
         case "role":
             if command[1] == "add":
                 response += [{"type":"role","role":command[2],"user":command[3]}]
-        case "echo":
-            if cmd_prefix != "?":
-                response += [{"type":"message","message":command[-1].removeprefix(f"{cmd_prefix}echo ")},{"type":"delete","message":message.id,"channel":message.channel.id}]
     return response
 
 def message_responses(command:list[str], message:discord.Message, channel_id:int, user_id:int, server:int, mentioned:bool) -> list[dict]:

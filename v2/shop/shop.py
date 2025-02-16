@@ -52,7 +52,7 @@ def calc_price(user_id:int, price:dict) -> int:
         case "dynamic":
             return -1 # TODO implement
 
-def read_shop(user_id:int, shop:str) -> discord.Embed | None:
+def get_shop_embed(user_id:int, shop:str) -> discord.Embed | None:
     shop_data:dict = data.get(shop, None)
     if not shop:
         return None
@@ -71,5 +71,11 @@ def read_shop(user_id:int, shop:str) -> discord.Embed | None:
         embed.add_field(name=item.get("name"),value=f"{item.get('desc')}\nPrice: ${calc_price(user_id, item.get('price'))}")
     return embed
 
+number_reacts:tuple = ("0️⃣","1️⃣","2️⃣","3️⃣","4️⃣","5️⃣","6️⃣","7️⃣","8️⃣","9️⃣","⬅️","➡️")
 def get_shop_message(user_id:int, shop:str) -> list[dict]:
-    return None
+    shop_data:dict = data.get(shop, None)
+    if not shop:
+        return []
+
+def read_item(user_id:int, shop:str, index:int) -> dict:
+    pass
