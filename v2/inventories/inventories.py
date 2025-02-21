@@ -7,6 +7,28 @@ import discord
 with open("fishing/meta/fish.txt", "r") as fish:
     fish_list = [line.strip("\n") for line in fish.readlines()]
     
+def update() -> None:
+    with(open("inventories/meta/TEMPLATE.json")) as file:
+            template:dict = json.load(file)
+    for path in os.listdir("inventories/meta"):
+        if not path.endswith(".json"):
+            continue
+        if "TEMPLATE" in path:
+            continue
+        with open(f"inventories/meta/{path}") as file:
+            data = json.load(file)
+        for key in template.keys():
+            if key in data.keys():
+                continue
+            data[key] = template[key]
+        for key in template.get("meta").keys():
+            if key in data.get("meta").keys():
+                continue
+            data["meta"][key] = template["meta"][key]
+        with open(f"inventories/meta/{path}", "w") as file:
+            json.dump(data, file)
+update()
+    
 def get_path(user_id:int) -> str:
     path_str:str = f"inventories/meta/inv_{user_id}"
     if path.isfile(f"{path_str}.json"):
@@ -85,21 +107,20 @@ def get_total_buffs(user_id:int) -> int:
     meta = get_meta(user_id)
     return (meta.get("rod_level") + meta.get("bait_level"))
 
+def get_time_reduction(user_id:int) -> int:
+    meta = get_meta(user_id)
+    return max(0,(meta.get("rod_time") + meta.get("bait_level")))
+
 def read_meta(user_id:int, username:str, user:discord.User) -> list[dict]:
     data = get_data(user_id)
     embed = discord.Embed(title=f"{username}'s Inventory", color=0x6699ff)
     embed.set_thumbnail(url=user.avatar.url)
     embed.add_field(name="Fish in storage:", value=len(data.get("fish")), inline=False)
     embed.add_field(name="Rod Level:", value=data.get("meta").get("rod_level"), inline=False)
+    embed.add_field(name="Rod Speed:", value=data.get("meta").get("rod_time"), inline=False)
     embed.add_field(name="Money:", value=data.get("meta").get("money"), inline=False)
     return [{"type":"message","message":"","embed":embed}]
 
-def read_one_meta(user_id:int, attr:str) -> int:
+def read_one_meta(user_id:int, attr:str) -> any:
     data = get_data(user_id)
-    val = data.get("meta").get(attr)
-    match val:
-        case int():
-            return val
-        case list():
-            return len(val)
-
+    return data.get("meta").get(attr, None)

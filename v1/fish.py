@@ -69,7 +69,7 @@ def start_fish(user_id, username):
             user["money"] += 25
 
         # Get treasure_list
-        if roll >= 0.95:
+        if roll >= 0.99:
             roll2 = random.randint(0,len(treasure_list) - 1)
             treasure = treasure_list[roll2]
             if treasure == "{{USERNAME}}":

@@ -1,0 +1,1 @@
+print("Loaded console module")

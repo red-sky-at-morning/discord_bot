@@ -1,6 +1,7 @@
 import random
 import discord
 
+from inventories import inventories
 from fishing import fish
 from shop import shop
 
@@ -82,15 +83,26 @@ def multi_args_m(command:list[str], message:discord.Message, channel_id:int, use
                 response += shop.get_shop_message(user_id, "test")
             else:
                 response += shop.get_shop_message(user_id, command[1])
+        case "inv":
+            if len(command) < 3:
+                response += ([{"type":"message","message":"Sorry, I can't tell what command you're trying to use. Try >inv fish"}])
+            elif (len(command) == 3):
+                if command[1] == "fish":
+                    response += inventories.read_meta(user_id, message.author.name, message.author)
+            elif (len(command > 3)):
+                try:
+                    response += inventories.read_range_from_inventory(user_id, message.author.name, message.author, (int(command[2])-1)*20, 20)
+                except ValueError:
+                    response += ([{"type":"message","message":"Sorry, I can't tell what page you're looking for. Try >inv fish 1"}])
         case "role":
             if command[1] == "add":
                 response += [{"type":"role","role":command[2],"user":command[3]}]
     return response
 
+responses = ("You called?", "haiiiiii", "OwO", "UwU", "Fuck off", "Bitch", "I'M HERE", ":3", "At least take me to dinner first", "You what", "Find my pages")
 def message_responses(command:list[str], message:discord.Message, channel_id:int, user_id:int, server:int, mentioned:bool) -> list[dict]:
     response:list = []
     if mentioned:
-        responses = ("You called?", "haiiiiii", "OwO", "UwU", "Fuck off", "Bitch", "I'M HERE", ":3", "At least take me to dinner first", "You what", "Find my pages")
         response += [{"type":"message","message":responses[random.randint(0,len(responses)-1)]}]
     return response
 
@@ -105,12 +117,15 @@ def handle_react(message:discord.Message, emoji:discord.PartialEmoji, count, cha
 
 
 def make_sale(message:discord.Message, emoji:discord.PartialEmoji, channel_id, user_id, server) -> list[dict]:
-    if not shop.is_sale(user_id, message.id):
-        return []
-    
-    if emoji.name == "❎":
-        return shop.complete_sale(user_id, message.id, False)
-    elif emoji.name == "✅":
-        return shop.complete_sale(user_id, message.id, True)
+    if shop.is_sale(user_id, message.id):    
+        if emoji.name == "❎":
+            return shop.complete_sale(user_id, message.id, False)
+        elif emoji.name == "✅":
+            return shop.complete_sale(user_id, message.id, True)
+    elif shop.is_shop(user_id, message.id):
+        if not shop.validate(emoji.name):
+            return []
+        else:
+            return shop.sell_item(user_id, message.id, emoji.name)
     else:
         return []

@@ -17,12 +17,7 @@ def handle(command:list[str], user_id:int, username, message:discord.Message) ->
         return go_fish(user_id, username)
     match command[1]:
         case "inv":
-            if (len(command) == 3):
-                return inventories.read_meta(user_id, username, message.author)
-            try:
-                return inventories.read_range_from_inventory(user_id, username, message.author, (int(command[2])-1)*20, 20)
-            except ValueError:
-                return([{"type":"message","message":"Sorry, I can't tell what page you're looking for. Try >fish inv 1"}])
+            return [{"type":"message","message":"The inventory command has been permanently moved to >inv fish."}]
         case "sell":
             if len(command) <= 3:
                 return [{"type":"message","message":"Sorry, I can't tell what fish you're trying to sell. Try >fish sell 1"}]
@@ -34,7 +29,11 @@ def handle(command:list[str], user_id:int, username, message:discord.Message) ->
             return([{"type":"message","message":"Sorry, I don't recognize that subcommand."}])
 
 def create_wait(user_id:int) -> list[dict]:
-    return [{"type":"message", "message":"The waters are stirring..."}, {"type":"wait","time":(4-max(math.floor(.5*inventories.get_total_buffs(user_id)),0))}]
+    reduction = inventories.get_time_reduction(user_id)
+    time = (7 - math.floor(reduction * .5))
+    if time <= 0:
+        return []
+    return [{"type":"message", "message":"The waters are stirring..."}, {"type":"wait","time":time}]
 
 def go_fish(user_id:int, username) -> list[dict]:
     response:list[dict] = create_wait(user_id)
@@ -44,12 +43,12 @@ def go_fish(user_id:int, username) -> list[dict]:
 
     print(roll)
     match (roll):
-        case roll if roll >= .9:
+        case roll if roll >= .99:
             idx = random.randrange(0, len(treasure)-1)
             item = treasure[idx]
             if item == "{{USERNAME}}":
                 item = username
-        case roll if roll < .1:
+        case roll if roll < .15:
             item = None
         case _:
             idx = random.randrange(0, len(fish)-1)

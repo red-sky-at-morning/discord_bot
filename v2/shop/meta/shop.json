@@ -4,96 +4,130 @@
         "min_fish_price": 25,
         "fish_price": 100,
         "treasure_modifier": 4,
-        "per_page":1
+        "per_page": 1
     },
     "test": {
-        "url":"https://file.garden/ZU1C6Qx2nVLn6KQc/test.png",
-        "color":"random",
-        "title":"Heban 'euna",
-        "desc":"Nsi uyo 'euna nin ur ruki'en ke khes.",
-        "restrict_users":[630837649963483179],
-        "whitelist":true,
+        "url": "https://file.garden/ZU1C6Qx2nVLn6KQc/test.png",
+        "color": "random",
+        "title": "Heban 'euna",
+        "desc": "Nsi uyo 'euna nin ur ruki'en ke khes.",
+        "restrict_users": [
+            630837649963483179
+        ],
+        "whitelist": true,
         "items": [
             {
                 "name": "Test item 1",
                 "price": {
-                    "type":"static",
-                    "price":50
+                    "type": "static",
+                    "price": 0
                 },
-                "desc":"desc 1",
-                "action": {
-                    "category":"meta",
-                    "action":"message",
-                    "message":"test_message"
-                }
+                "desc": "desc 1",
+                "action": [
+                    {
+                        "type": "message",
+                        "message": "Hello world!"
+                    }
+                ]
             },
             {
                 "name": "Test item 2",
                 "price": {
-                    "type":"static",
-                    "price":75
+                    "type": "static",
+                    "price": 75
                 },
-                "desc":"desc 2",
-                "action":null
+                "desc": "desc 2",
+                "action": null
             },
             {
                 "name": "Test item 3",
                 "price": {
-                    "type":"static",
-                    "price":75
+                    "type": "static",
+                    "price": 75
                 },
-                "desc":"desc 3",
-                "action":null
+                "desc": "desc 3",
+                "action": null
             },
             {
                 "name": "Test item 4",
                 "price": {
-                    "type":"dynamic",
-                    "attribute":"rod_level",
-                    "mult":50
+                    "type": "dynamic",
+                    "attribute": "rod_level",
+                    "mult": 50
                 },
-                "desc":"desc 4",
-                "action":null
+                "desc": "desc 4",
+                "action": null
             }
         ]
     },
     "fish": {
         "url": "https://file.garden/ZU1C6Qx2nVLn6KQc/mark.png",
         "title": "Bass Pro Shop",
-        "color":"AAAAFF",
+        "color": "AAAAFF",
         "desc": "Everything's for sale.",
         "items": [
             {
                 "name": "Fishing Rod Upgrade",
                 "order": 0,
+                "desc":"Improves how powerful your fishing rod is.",
                 "price": {
                     "type": "dynamic",
                     "attribute": "rod_level",
                     "mult": 50
                 },
-                "action": {
-                    "category":"fish",
-                    "action":"increase_rod_level"
-                }
+                "action": [
+                    {
+                        "type": "change_resource",
+                        "resource": "rod_level",
+                        "amount": 1
+                    }
+                ]
+            },
+            {
+                "name":"Fishing Speed Upgrade",
+                "order": 0,
+                "desc": "Improves how fast you can catch fish.",
+                "price": {
+                    "type": "dynamic",
+                    "attribute": "rod_speed",
+                    "mult": 50
+                },
+                "action": [
+                    {
+                        "type": "change_resource",
+                        "resource": "rod_speed",
+                        "amount": -1,
+                        "min":"0"
+                    }
+                ]
             },
             {
                 "name": "Fishing Bait",
                 "order": 1,
+                "desc":"Gives you a temporary boost to fishing. Stacks.",
                 "price": {
                     "type": "static",
                     "price": "75"
                 },
-                "action": {
-                    "category":"fish",
-                    "action":"increase_bait"
-                }
+                "action": [
+                    {
+                        "type": "set_resource",
+                        "resource": "bait_level",
+                        "value": 1
+                    },
+                    {
+                        "type": "change_resource",
+                        "resource": "bait_time",
+                        "amount": 5
+                    }
+                ]
             }
         ]
     },
     "farm": {
         "url": "https://file.garden/ZU1C6Qx2nVLn6KQc/techno.png",
         "title": "The Great Potato Dome",
-        "color":"AAFFAA",
+        "color": "AAFFAA",
         "desc": "I've seen irish famines with more potatoes than this.",
         "items": []
     }

@@ -1,0 +1,1 @@
+print("Loaded fishing module")
