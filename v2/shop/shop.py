@@ -86,7 +86,7 @@ def get_shop_embed(user_id:int, shop:str) -> discord.Embed | None:
     embed.set_thumbnail(url=shop_data.get("url", None))
     embed.set_footer(text="Shops are unique to each user.\nIf you want to buy something, use >shop.")
     for item in shop_data.get("items"):
-        embed.add_field(name=item.get("name"),value=f"{item.get('desc')}\nPrice: ${calc_price(user_id, item.get('price'))}")
+        embed.add_field(name=item.get("name"),value=f"{item.get('desc')}\nPrice: ${calc_price(user_id, item.get('price'))}",inline=False)
     return embed
 
 def get_shop_message(user_id:int, shop:str) -> list[dict]:

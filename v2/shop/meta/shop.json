@@ -73,7 +73,7 @@
                 "price": {
                     "type": "dynamic",
                     "attribute": "rod_level",
-                    "mult": 50
+                    "mult": 75
                 },
                 "action": [
                     {
@@ -96,8 +96,7 @@
                     {
                         "type": "change_resource",
                         "resource": "rod_time",
-                        "amount": -1,
-                        "min":"0"
+                        "amount": 1
                     }
                 ]
             },
@@ -107,7 +106,7 @@
                 "desc":"Gives you a temporary boost to fishing. Stacks.",
                 "price": {
                     "type": "static",
-                    "price": "75"
+                    "price": 75
                 },
                 "action": [
                     {
