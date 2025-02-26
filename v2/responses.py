@@ -89,7 +89,7 @@ def multi_args_m(command:list[str], message:discord.Message, channel_id:int, use
             elif (len(command) == 3):
                 if command[1] == "fish":
                     response += inventories.read_meta(user_id, message.author.name, message.author)
-            elif (len(command > 3)):
+            elif (len(command) > 3):
                 try:
                     response += inventories.read_range_from_inventory(user_id, message.author.name, message.author, (int(command[2])-1)*20, 20)
                 except ValueError:

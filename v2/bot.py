@@ -140,13 +140,13 @@ class Bot(discord.Client):
 
         # Don't respond to our own reacts
         if user == self.user:
-            return
+            return False
 
         character:discord.PartialEmoji = payload.emoji
         try:
             count = discord.utils.get(message.reactions, emoji=character.name).count
         except AttributeError:
-            return
+            return False
         username = user.name
         
         # Print to console
