@@ -143,7 +143,10 @@ class Bot(discord.Client):
             return
 
         character:discord.PartialEmoji = payload.emoji
-        count = discord.utils.get(message.reactions, emoji=character.name).count
+        try:
+            count = discord.utils.get(message.reactions, emoji=character.name).count
+        except AttributeError:
+            return
         username = user.name
         
         # Print to console

@@ -89,13 +89,13 @@
                 "desc": "Improves how fast you can catch fish.",
                 "price": {
                     "type": "dynamic",
-                    "attribute": "rod_speed",
+                    "attribute": "rod_time",
                     "mult": 50
                 },
                 "action": [
                     {
                         "type": "change_resource",
-                        "resource": "rod_speed",
+                        "resource": "rod_time",
                         "amount": -1,
                         "min":"0"
                     }
