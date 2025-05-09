@@ -1,7 +1,7 @@
 # Eclipsebot 
 ## Current version: V2.1.0
-The code for midnight__sun's Eclipsebot on discord. 
-Written in discord.py
+The code for midnight__sun's Eclipsebot on discord, written in discord.py.
+
 Files in /v1/* are deprecated.
 
 #### Cloning
