@@ -69,7 +69,7 @@
             {
                 "name": "Fishing Rod Upgrade",
                 "order": 0,
-                "desc":"Improves how powerful your fishing rod is.",
+                "desc": "Improves how powerful your fishing rod is.",
                 "price": {
                     "type": "dynamic",
                     "attribute": "rod_level",
@@ -84,7 +84,7 @@
                 ]
             },
             {
-                "name":"Fishing Speed Upgrade",
+                "name": "Fishing Speed Upgrade",
                 "order": 0,
                 "desc": "Improves how fast you can catch fish.",
                 "price": {
@@ -103,7 +103,7 @@
             {
                 "name": "Fishing Bait",
                 "order": 1,
-                "desc":"Gives you a temporary boost to fishing. Stacks.",
+                "desc": "Gives you a temporary boost to fishing. Stacks.",
                 "price": {
                     "type": "static",
                     "price": 75
@@ -128,6 +128,29 @@
         "title": "The Great Potato Dome",
         "color": "AAFFAA",
         "desc": "I've seen irish famines with more potatoes than this.",
-        "items": []
+        "items": [
+            {
+                "name": "New Starter Farm Plot",
+                "order": 0,
+                "desc": "Opens a new farm plot. 3x3 to start.",
+                "price": {
+                    "type": "dynamic",
+                    "attribute": "farms_owned",
+                    "mult":50
+                },
+                "action": [
+                    {
+                        "type": "add_special_item",
+                        "namespace": "farm",
+                        "item": {}
+                    },
+                    {
+                        "type": "change_resource",
+                        "resource":"farms_owned",
+                        "amount":1
+                    }
+                ]
+            }
+        ]
     }
 }

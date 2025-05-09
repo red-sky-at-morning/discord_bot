@@ -7,6 +7,9 @@ import queue
 import json
 import argparse
 
+import warnings
+warnings.warn("deprecated", DeprecationWarning)
+
 intents = discord.Intents.default()
 intents.message_content = True
 

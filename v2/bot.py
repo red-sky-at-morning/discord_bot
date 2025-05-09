@@ -73,10 +73,10 @@ class Bot(discord.Client):
             match item.get("type", None):
                 case "message":
                     self.last_sent_message = await channel.send(item.get("message","No message provided"), embed=item.get("embed", None))
-                    print(f"Said {item.get('message','No message provided')} in {channel.name} in {channel.guild.name}")
+                    print(f"Said {item.get('message','No message provided')} {'(with embed)' if item.get("embed", None) is not None else ""} in {channel.name} in {channel.guild.name}")
                 case "reply":
-                    await channel.send(item.get("message","No message provided"), reference=item.get("reply"), embed=item.get("embed", None))
-                    print(f"Replied to {item.get('reply').content} with {item.get('message','No message provided')} in {channel.name} in {channel.guild.name}")
+                    await channel.send(item.get("message","No message provided"), reference=item.get("reply", self.last_sent_message), embed=item.get("embed", None))
+                    print(f"Said {item.get('message','No message provided')} {'(with embed)' if item.get("embed", None) is not None else ""} in {channel.name} in {channel.guild.name}")
                 case "react":
                     message:discord.Message = item.get("message", self.last_sent_message)
                     if type(item.get("react")) == discord.PartialEmoji:

@@ -29,7 +29,7 @@ def handle(command:list[str], user_id:int, username, message:discord.Message) ->
             return([{"type":"message","message":"Sorry, I don't recognize that subcommand."}])
 
 def create_wait(user_id:int) -> list[dict]:
-    reduction = inventories.get_time_reduction(user_id)
+    reduction = inventories.get_fish_time_reduction(user_id)
     time = (7 - math.floor(reduction * .5))
     if time <= 0:
         return []
@@ -38,7 +38,7 @@ def create_wait(user_id:int) -> list[dict]:
 def go_fish(user_id:int, username) -> list[dict]:
     response:list[dict] = create_wait(user_id)
     roll:float = random.random()
-    roll += (inventories.get_total_buffs(user_id) * .1)
+    roll += (inventories.get_total_fish_buffs(user_id) * .1)
     item:str
 
     print(roll)
@@ -46,8 +46,7 @@ def go_fish(user_id:int, username) -> list[dict]:
         case roll if roll >= .99:
             idx = random.randrange(0, len(treasure)-1)
             item = treasure[idx]
-            if item == "{{USERNAME}}":
-                item = username
+            item.replace("{{USERNAME}}", username)
         case roll if roll < .15:
             item = None
         case _:

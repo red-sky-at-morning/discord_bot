@@ -24,5 +24,3 @@ def change_resource(user_id:int, resource:str, amount:int):
 
 def set_resource(user_id:int, resource:str, value:any):
     inventories.add_meta(user_id, resource, value)
-
-# perform_action(1, [{"type": "change_resource", "resource": "rod_level", "amount": 1}])

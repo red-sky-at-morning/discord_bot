@@ -64,7 +64,7 @@ def add_fish_to_inventory(user_id:int, item) -> bool:
         print(e)
         return False
 
-def remove_from_inventory(user_id:int, idx:int) -> bool:
+def remove_fish_from_inventory(user_id:int, idx:int) -> bool:
     try:
         user_path = get_path(user_id)
         data = get_data(user_id)
@@ -75,16 +75,21 @@ def remove_from_inventory(user_id:int, idx:int) -> bool:
     except Exception as e:
         return False
 
-def read_range_from_inventory(user_id:int, username:str, user:discord.User, start_index:int, step:int) -> list[dict]:
+def read_range_fish_from_inventory(user_id:int, username:str, user:discord.User, start_index:int, step:int) -> list[dict]:
     data = get_data(user_id)
-    inventory = [(f"{data['fish'].index(line)+1}. {f'*{line}*' if line not in fish_list else line}") for line in data["fish"][start_index:start_index+step]]
+    inventory = []
+    for line in data["fish"][start_index:start_index+step]:
+        idx = data["fish"].index(line)+1
+        is_treasure = line not in fish_list
+        fish = f"*{line}*" if is_treasure else line
+        inventory.append(f"{idx}. {fish}")
     response = str(inventory).replace('"', "'").replace("', '", "\n").strip("[']")
-    embed = discord.Embed(title=f"{username}'s Tank", description=f"Page {int(start_index/20)+1} ({start_index+1} - {start_index + step+1})", color=0x6699ff)
+    embed = discord.Embed(title=f"{username}'s Tank", description=f"Page {int(start_index/20)+1} ({start_index+1} - {start_index + step})", color=0x6699ff)
     embed.set_thumbnail(url=user.avatar.url)
     embed.add_field(name="Contents", value=response)
     return [{"type":"message","message":"","embed":embed}]
 
-def read_one_from_inventory(user_id:int, idx:int) -> str:
+def read_one_fish_from_inventory(user_id:int, idx:int) -> str:
     data = get_data(user_id)
     return data["fish"][idx]
 
@@ -103,15 +108,15 @@ def add_meta(user_id, name, item):
     with open(user_path, 'w') as inv:
         json.dump(data,inv)
 
-def get_total_buffs(user_id:int) -> int:
+def get_total_fish_buffs(user_id:int) -> int:
     meta = get_meta(user_id)
     return (meta.get("rod_level") + meta.get("bait_level"))
 
-def get_time_reduction(user_id:int) -> int:
+def get_fish_time_reduction(user_id:int) -> int:
     meta = get_meta(user_id)
     return max(0,(meta.get("rod_time") + meta.get("bait_level")))
 
-def read_meta(user_id:int, username:str, user:discord.User) -> list[dict]:
+def get_fish_embed(user_id:int, username:str, user:discord.User) -> list[dict]:
     data = get_data(user_id)
     embed = discord.Embed(title=f"{username}'s Inventory", color=0x6699ff)
     embed.set_thumbnail(url=user.avatar.url)

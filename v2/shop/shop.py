@@ -14,7 +14,7 @@ number_reacts:tuple = ("1️⃣","2️⃣","3️⃣","4️⃣","5️⃣","6️�
 error_message:list[dict] = [{"type":"message","message":"Hey! What are you trying to pull?"}]
 
 def sell_fish(user_id:int, idx:int) -> list[dict]:
-    fish = inventories.read_one_from_inventory(user_id, idx)
+    fish = inventories.read_one_fish_from_inventory(user_id, idx)
     meta = data.get("meta", None)
     if meta is None:
         raise FileNotFoundError("Could not read shop metadata")
@@ -44,7 +44,7 @@ def complete_sale(user_id, message_id, succeed:bool) -> list[dict]:
     price = meta.get("open_sales").get("price")
     money = meta.get("money") + price
     inventories.add_meta(user_id, "money", money)
-    inventories.remove_from_inventory(user_id, idx)
+    inventories.remove_fish_from_inventory(user_id, idx)
     return [{"type":"message","message":f"Pleasure doing business with you, <@{user_id}>"}]
 
 def calc_price(user_id:int, price:dict) -> int:
@@ -121,7 +121,6 @@ def sell_item(user_id:int, message_id:int, react:str) -> list[dict]:
     response += (actions.perform(user_id, shop_item.get("action")))
 
     return response
-
 
 def read_item(shop:str, index:int) -> dict:
     pass
