@@ -6,7 +6,7 @@ Files in /v1/* are deprecated.
 
 #### Cloning
 This repo is missing a couple key components of Eclipsebot, namely its bot token. If you want to clone this repo and run your own bot, here is what you will need to do:
-- visit the [discord dev portal]
+- visit the [discord dev portal](https://discord.com/developers/applications)
 - create a new bot and note the token
 - create a file called `TOKEN.txt` at `/meta/`
 - paste your new bot token into that file
