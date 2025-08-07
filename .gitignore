@@ -180,3 +180,4 @@ v2/inventories/meta/*
 venv_old/
 
 **/TOKEN.txt
+run_v2.sh
