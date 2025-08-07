@@ -7,7 +7,8 @@
         "bait_time": 0,
         "money": 100,
         "open_sales":{},
-        "open_shops":{}
+        "open_shops":{},
+        "farm_plots":0
     },
     "fish": [],
     "farm": []

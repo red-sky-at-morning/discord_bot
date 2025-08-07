@@ -2,6 +2,7 @@ import random
 import discord
 
 from inventories import inventories
+from farming import farm
 from fishing import fish
 from shop import shop
 
@@ -35,6 +36,8 @@ def dev_commands(command:list[str], message:discord.Message, channel_id:int, use
             response += [{"type":"mode","mode":command[1].upper()},{"type":"message","message":f"Switching to {command[1].upper()} mode..."}]
         case "echo":
             response += [{"type":"message","message":command[-1].removeprefix(f"{cmd_prefix}echo ")},{"type":"delete","message":message.id,"channel":message.channel.id}]
+        case "farm":
+            response += farm.handle(command, user_id, str(message.author), message)
     return response
 
 def single_args_m(command:str, message:discord.Message, channel_id:int, user_id:int, server:int) -> list[dict]:
@@ -69,6 +72,13 @@ def single_args_m(command:str, message:discord.Message, channel_id:int, user_id:
         case "test7":
             response.append({"type":"message","message":"Goodbye world!"})
             response.append({"type":"delete","message":message.id, "channel":message.channel.id})
+        case "test8":
+            async def repeat_user_input(user_id:int, message:discord.Message):
+                return ({"type":"message","message":message.content})
+            def check(user_id:int):
+                return lambda m: m.author.id==user_id
+            response.append({"type":"message","message":"Awaiting further input..."})
+            response.append({"type":"input","wait_type":"message","check":check(user_id),"call":repeat_user_input})
     return response
 
 def multi_args_m(command:list[str], message:discord.Message, channel_id:int, user_id:int, server:int) -> list[dict]:
@@ -80,7 +90,7 @@ def multi_args_m(command:list[str], message:discord.Message, channel_id:int, use
             response += fish.handle(command, user_id, str(message.author), message)
         case "shop":
             if len(command) == 2:
-                response += shop.get_shop_message(user_id, "test")
+                response += shop.get_shop_message(user_id, "fish")
             else:
                 response += shop.get_shop_message(user_id, command[1])
         case "inv":

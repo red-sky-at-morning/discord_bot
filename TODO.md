@@ -1,11 +1,11 @@
 Implement Farming
-- Buy new fields
-- View fields
-- Plant fields
-    - Various crops
-- Calculate field ticking
-    - Admin tool to pass x amount of time
-- Harvest fields
+- [] Buy new fields
+- [x] View fields
+- [] Plant fields
+    - [x] Various crops
+- [x] Calculate field ticking
+    - [] Admin tool to pass x amount of time
+- [] Harvest fields
 
 Adventure dungeons?
 - Like in Theory of Magic

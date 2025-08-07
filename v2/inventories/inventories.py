@@ -52,6 +52,46 @@ def get_data(user_id:int):
         data = json.load(inv)
     return data
 
+def get_meta(user_id):
+    return get_data(user_id).get("meta")
+
+def add_meta(user_id, name, item):
+    user_path = get_path(user_id)
+    data = get_data(user_id)
+    match type(data["meta"].get(name)):
+        case builtins.list:
+            data["meta"][name].append(item)
+        case _:
+            data["meta"][name] = item
+    print(data["meta"])
+    with open(user_path, 'w') as inv:
+        json.dump(data,inv)
+
+def read_one_meta(user_id:int, attr:str) -> any:
+    data = get_data(user_id)
+    return data.get("meta").get(attr, None)
+
+# Fish -----------------------------------------------
+
+def get_total_fish_buffs(user_id:int) -> int:
+    meta = get_meta(user_id)
+    return (meta.get("rod_level") + meta.get("bait_level"))
+
+def get_fish_time_reduction(user_id:int) -> int:
+    meta = get_meta(user_id)
+    return max(0,(meta.get("rod_time") + meta.get("bait_level")))
+
+def get_fish_embed(user_id:int, username:str, user:discord.User) -> list[dict]:
+    data = get_data(user_id)
+    embed = discord.Embed(title=f"{username}'s Inventory", color=0x6699ff)
+    embed.set_thumbnail(url=user.avatar.url)
+    embed.add_field(name="Fish in storage:", value=len(data.get("fish")), inline=False)
+    embed.add_field(name="Rod Level:", value=data.get("meta").get("rod_level"), inline=False)
+    embed.add_field(name="Rod Speed:", value=data.get("meta").get("rod_time"), inline=False)
+    embed.add_field(name="Money:", value=data.get("meta").get("money"), inline=False)
+    return [{"type":"message","message":"","embed":embed}]
+
+
 def add_fish_to_inventory(user_id:int, item) -> bool:
     try:
         user_path = get_path(user_id)
@@ -93,39 +133,11 @@ def read_one_fish_from_inventory(user_id:int, idx:int) -> str:
     data = get_data(user_id)
     return data["fish"][idx]
 
-def get_meta(user_id):
-    return get_data(user_id).get("meta")
+# Farming -----------------------------------------------
 
-def add_meta(user_id, name, item):
-    user_path = get_path(user_id)
+def read_farm(user_id, idx) -> dict:
     data = get_data(user_id)
-    match type(data["meta"].get(name)):
-        case builtins.list:
-            data["meta"][name].append(item)
-        case _:
-            data["meta"][name] = item
-    print(data["meta"])
-    with open(user_path, 'w') as inv:
-        json.dump(data,inv)
+    return data["farm"][idx]
 
-def get_total_fish_buffs(user_id:int) -> int:
-    meta = get_meta(user_id)
-    return (meta.get("rod_level") + meta.get("bait_level"))
-
-def get_fish_time_reduction(user_id:int) -> int:
-    meta = get_meta(user_id)
-    return max(0,(meta.get("rod_time") + meta.get("bait_level")))
-
-def get_fish_embed(user_id:int, username:str, user:discord.User) -> list[dict]:
-    data = get_data(user_id)
-    embed = discord.Embed(title=f"{username}'s Inventory", color=0x6699ff)
-    embed.set_thumbnail(url=user.avatar.url)
-    embed.add_field(name="Fish in storage:", value=len(data.get("fish")), inline=False)
-    embed.add_field(name="Rod Level:", value=data.get("meta").get("rod_level"), inline=False)
-    embed.add_field(name="Rod Speed:", value=data.get("meta").get("rod_time"), inline=False)
-    embed.add_field(name="Money:", value=data.get("meta").get("money"), inline=False)
-    return [{"type":"message","message":"","embed":embed}]
-
-def read_one_meta(user_id:int, attr:str) -> any:
-    data = get_data(user_id)
-    return data.get("meta").get(attr, None)
+def update_farm(user_id, plant, time, size, watered) -> None:
+    pass

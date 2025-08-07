@@ -135,18 +135,18 @@
                 "desc": "Opens a new farm plot. 3x3 to start.",
                 "price": {
                     "type": "dynamic",
-                    "attribute": "farms_owned",
+                    "attribute": "farm_plots",
                     "mult":50
                 },
                 "action": [
                     {
                         "type": "add_special_item",
                         "namespace": "farm",
-                        "item": {}
+                        "item": {"plant": null, "planted_tick": 0, "size": 3, "watered": false}
                     },
                     {
                         "type": "change_resource",
-                        "resource":"farms_owned",
+                        "resource":"farm_plots",
                         "amount":1
                     }
                 ]

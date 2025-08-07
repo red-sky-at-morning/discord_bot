@@ -24,3 +24,6 @@ def change_resource(user_id:int, resource:str, amount:int):
 
 def set_resource(user_id:int, resource:str, value:any):
     inventories.add_meta(user_id, resource, value)
+
+def add_special_item(user_id, namespace, item):
+    pass #TODO

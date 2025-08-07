@@ -1,0 +1,22 @@
+{
+    "example_1min":{
+        "name": "One Minute Example",
+        "tick": 60,
+        "value": 0
+    },
+    "example_1hr":{
+        "name": "One Hour Example",
+        "tick": 3600,
+        "value": 0
+    },
+    "example_24hr":{
+        "name": "One Day Example",
+        "tick": 84600,
+        "value": 0
+    },
+    "astral_lily":{
+        "name":"Lily of the Stars",
+        "tick":60,
+        "value":500
+    }
+}

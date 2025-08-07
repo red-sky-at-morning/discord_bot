@@ -3,17 +3,26 @@ from discord.ext import commands
 import asyncio
 import responses
 from inventories import inventories
-from console import console
+
+import sys
+args = sys.argv[1:]
+interactive:bool = False
+if ("--interactable" in args) or ("-i" in args):
+    from console import console
+    interactive=True
 
 class Bot(discord.Client):
-    def __init__(self, intents:discord.Intents):
+    def __init__(self, intents:discord.Intents, interactive:bool):
         super().__init__(intents=intents)
-        self.starting_mode = "HYBRID"
+        self.starting_mode = "ACTIVE"
         self.starting_server = 1224530294560915589
         self.starting_channel = 1224530295030546432
 
-        self.modes:tuple = ("ACTIVE", "CONSOLE", "STANDBY", "TESTING", "HYBRID")
+        self.modes:tuple = ("ACTIVE", "STANDBY", "TESTING")
         self.console_modes:tuple = ("CONSOLE", "HYBRID")
+        self.interactive = interactive
+        if self.interactive:
+            self.modes = self.modes + (self.console_modes)
         self.mode:str = self.starting_mode
 
         self.ignore_errors:bool = True
@@ -118,8 +127,10 @@ class Bot(discord.Client):
                     raise error
                 case "mode":
                     await self.switch_mode(item.get("mode"))
-                case "call":
-                    response += await item.get("call")()
+                case "input":
+                    msg = await self.wait_for(item.get("wait_type"), check=item.get("check"))
+                    func = item.get("call", lambda x:None)
+                    response.append(await func(msg.author.id, msg))
                 case "special":
                     match item.get("action"):
                         case "toggle_error_standby":
@@ -156,7 +167,6 @@ class Bot(discord.Client):
             return False
 
         response = responses.handle_react(message, character, count, channel.id, user.id, server.id)
-        print(response)
         await self.handle_response(response, channel)
         return True
 
@@ -193,10 +203,15 @@ class Bot(discord.Client):
             TOKEN = token.readline().strip()
         async def run():
             discord.utils.setup_logging(root=False)
-            await asyncio.gather(
-                self.start(TOKEN),
-                console.run(self, self.starting_server, self.starting_channel)
-            )
+            if self.interactive:
+                await asyncio.gather(
+                    self.start(TOKEN),
+                    console.run(self, self.starting_server, self.starting_channel)
+                )
+            else:
+                await asyncio.gather(
+                    self.start(TOKEN)
+                )
         try:
             asyncio.run(run())
         except KeyboardInterrupt:
@@ -206,5 +221,5 @@ if __name__ == "__main__":
     intents = discord.Intents.default()
     intents.message_content = True
     intents.reactions = True
-    eclipse = Bot(intents=intents)
+    eclipse = Bot(intents=intents, interactive=interactive)
     eclipse.startup()
