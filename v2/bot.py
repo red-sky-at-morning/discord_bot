@@ -32,7 +32,9 @@ class Bot(discord.Client):
         self.last_sent_message:discord.Message
 
     async def on_ready(self):
-        self.author = await self.fetch_user(630837649963483179)
+        with open("meta/params.json", "r") as params:
+            params_json = json.load(params)
+            self.author = await self.fetch_user(params_json.get("dev_id"))
         if self.mode == "TESTING":
             self.ignore_errors = True
         await self.change_presence(activity=discord.Game(f"in {self.mode} mode"))
