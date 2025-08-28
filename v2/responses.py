@@ -1,3 +1,4 @@
+import json
 import random
 import discord
 
@@ -6,8 +7,10 @@ from farming import farm
 from fishing import fish
 from shop import shop
 
-cmd_prefix:str = '?'
-dev_id = 630837649963483179
+with open("meta/params.json", "r") as params:
+    params_json = json.load(params)
+    cmd_prefix:str = params_json.get("cmd_prefix")
+    dev_id = params_json.get("dev_id")
 
 def handle_message(message: discord.Message, content:str, channel_id, user_id:int, server:int, **kwargs) -> list[dict]:
     if not content:

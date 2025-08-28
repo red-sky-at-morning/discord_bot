@@ -1,3 +1,4 @@
+import json
 import discord
 from discord.ext import commands
 import asyncio
@@ -14,9 +15,9 @@ if ("--interactable" in args) or ("-i" in args):
 class Bot(discord.Client):
     def __init__(self, intents:discord.Intents, interactive:bool):
         super().__init__(intents=intents)
-        self.starting_mode = "ACTIVE"
-        self.starting_server = 1224530294560915589
-        self.starting_channel = 1224530295030546432
+        self.starting_mode = "ACTIVE"        
+        self.starting_server = None
+        self.starting_channel = None
 
         self.modes:tuple = ("ACTIVE", "STANDBY", "TESTING")
         self.console_modes:tuple = ("CONSOLE", "HYBRID")
@@ -204,6 +205,10 @@ class Bot(discord.Client):
         async def run():
             discord.utils.setup_logging(root=False)
             if self.interactive:
+                with open("meta/params.json", "r") as params:
+                    params_json = json.load(params)
+                    self.starting_server = params_json.get("starting_server", -1)
+                    self.starting_channel = params_json.get("starting_channel", -1)
                 await asyncio.gather(
                     self.start(TOKEN),
                     console.run(self, self.starting_server, self.starting_channel)
