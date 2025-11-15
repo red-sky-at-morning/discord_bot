@@ -46,7 +46,7 @@ def go_fish(user_id:int, username) -> list[dict]:
         case roll if roll >= .99:
             idx = random.randrange(0, len(treasure)-1)
             item = treasure[idx]
-            item.replace("{{USERNAME}}", username)
+            item = item.replace("{{USERNAME}}", username)
         case roll if roll < .15:
             item = None
         case _:

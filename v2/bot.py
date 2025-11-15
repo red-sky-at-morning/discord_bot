@@ -15,7 +15,7 @@ if ("--interactable" in args) or ("-i" in args):
 class Bot(discord.Client):
     def __init__(self, intents:discord.Intents, interactive:bool):
         super().__init__(intents=intents)
-        self.starting_mode = "ACTIVE"        
+        self.starting_mode = "HYBRID"        
         self.starting_server = None
         self.starting_channel = None
 
@@ -25,6 +25,8 @@ class Bot(discord.Client):
         if self.interactive:
             self.modes = self.modes + (self.console_modes)
         self.mode:str = self.starting_mode
+        if not self.mode in self.modes:
+            self.mode = "ACTIVE"
 
         self.ignore_errors:bool = True
 
@@ -34,7 +36,7 @@ class Bot(discord.Client):
     async def on_ready(self):
         with open("meta/params.json", "r") as params:
             params_json = json.load(params)
-            self.author = await self.fetch_user(params_json.get("dev_id"))
+            self.author = await self.fetch_user(params_json.get("dev_ids")[0])
         if self.mode == "TESTING":
             self.ignore_errors = True
         await self.change_presence(activity=discord.Game(f"in {self.mode} mode"))
@@ -202,8 +204,11 @@ class Bot(discord.Client):
         return True
 
     def startup(self) -> None:
-        with open("meta/TOKEN.txt", "r") as token:
-            TOKEN = token.readline().strip()
+        try:
+            with open("meta/TOKEN.txt", "r") as token:
+                TOKEN = token.readline().strip()
+        except (FileNotFoundError, EOFError) as e:
+            print(f"Bad token: {e}")
         async def run():
             discord.utils.setup_logging(root=False)
             if self.interactive:
@@ -223,7 +228,7 @@ class Bot(discord.Client):
             asyncio.run(run())
         except KeyboardInterrupt:
             print("\nGoodbye!")
-        
+
 if __name__ == "__main__":
     intents = discord.Intents.default()
     intents.message_content = True

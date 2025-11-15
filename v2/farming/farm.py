@@ -10,8 +10,17 @@ with open("farming/meta/plants.json", "r") as plants_f:
     plants:dict = json.load(plants_f)
 
 def handle(command:list[str], user_id:int, username, message:discord.Message) -> list[dict]:
-    print(command)
-    return check_farm(user_id, username, 0)
+    fail_message:str = "I'm not sure what command you're trying to use. Try {}farm <#> to check a farm, or {}farm plant to plant some seeds."
+    if len(command) == 1:
+        return ({"type":"message","message":fail_message})
+    match command[1]:
+        case "plant":
+            return plant(user_id, username, command[2])
+        case _:
+            try:
+                return check_farm(user_id, username, int(command[1])-1)
+            except ValueError:
+                return ({"type":"message","message":fail_message})
 
 levels = ("🟫","🌱","🌿","🌾","🌻","🌧️")
 def square(size:int, progress:int) -> str:
@@ -32,6 +41,8 @@ def calc_progress(plant:str, planted_tick:int, watered:bool) -> int:
     if plant is None: return 0
     time_elapsed = time.time() - planted_tick
     tick = plants.get(plant).get("tick")
+    if watered:
+        tick /= 2
     progress = int(time_elapsed/tick)
     progress = max(min(0, progress), 4)
     return progress
@@ -54,3 +65,16 @@ def check_farm(user_id:int, username:str, idx:int) -> list[dict]:
     unplanted_str = "Not growing anything yet. Use >farm plant to plant something!"
     embed.add_field(name="Farm 1",value=plant_str if plant is not None else unplanted_str, inline=False)
     return [{"type":"message", "message":"", "embed":embed}]
+
+def plant(user_id:int, idx:int, plant_id:str) -> bool:
+    farm = inventories.read_farm(user_id, idx)
+    if farm.get("plant") is not None:
+        return False
+    
+    seeds = inventories.get_seeds(user_id)
+    
+    
+    farm["plant"] = plant_id
+    farm["planted_tick"] = time.time()
+    
+    

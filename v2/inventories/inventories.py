@@ -6,6 +6,8 @@ import discord
 
 with open("fishing/meta/fish.txt", "r") as fish:
     fish_list = [line.strip("\n") for line in fish.readlines()]
+with open("farming/meta/plants.json", "r") as plants:
+    plants_dict = json.load(plants)
     
 def update() -> None:
     with(open("inventories/meta/TEMPLATE.json")) as file:
@@ -83,12 +85,13 @@ def get_fish_time_reduction(user_id:int) -> int:
 
 def get_fish_embed(user_id:int, username:str, user:discord.User) -> list[dict]:
     data = get_data(user_id)
-    embed = discord.Embed(title=f"{username}'s Inventory", color=0x6699ff)
+    meta = get_meta(user_id)
+    embed = discord.Embed(title=f"{username}'s Pier", color=0x6699ff)
     embed.set_thumbnail(url=user.avatar.url)
-    embed.add_field(name="Fish in storage:", value=len(data.get("fish")), inline=False)
-    embed.add_field(name="Rod Level:", value=data.get("meta").get("rod_level"), inline=False)
-    embed.add_field(name="Rod Speed:", value=data.get("meta").get("rod_time"), inline=False)
-    embed.add_field(name="Money:", value=data.get("meta").get("money"), inline=False)
+    embed.add_field(name="Fish in tank:", value=len(data.get("fish")), inline=False)
+    embed.add_field(name="Money:", value=meta.get("money"), inline=False)
+    embed.add_field(name="Rod Level:", value=meta.get("rod_level"), inline=False)
+    embed.add_field(name="Rod Speed:", value=meta.get("rod_time"), inline=False)
     return [{"type":"message","message":"","embed":embed}]
 
 
@@ -124,7 +127,7 @@ def read_range_fish_from_inventory(user_id:int, username:str, user:discord.User,
         fish = f"*{line}*" if is_treasure else line
         inventory.append(f"{idx}. {fish}")
     response = str(inventory).replace('"', "'").replace("', '", "\n").strip("[']")
-    embed = discord.Embed(title=f"{username}'s Tank", description=f"Page {int(start_index/20)+1} ({start_index+1} - {start_index + step})", color=0x6699ff)
+    embed = discord.Embed(title=f"{username}'s Tank", description=f"Section {int(start_index/20)+1} ({start_index+1} - {start_index + step})", color=0x6699ff)
     embed.set_thumbnail(url=user.avatar.url)
     embed.add_field(name="Contents", value=response)
     return [{"type":"message","message":"","embed":embed}]
@@ -137,7 +140,35 @@ def read_one_fish_from_inventory(user_id:int, idx:int) -> str:
 
 def read_farm(user_id, idx) -> dict:
     data = get_data(user_id)
-    return data["farm"][idx]
+    return data.get("farm", None)[idx]
 
-def update_farm(user_id, plant, time, size, watered) -> None:
-    pass
+def get_seeds(user_id) -> dict | None:
+    data = get_meta(user_id)
+    return data.get("seeds", None)
+
+def get_seeds_formatted(user_id) -> str:
+    seeds = get_seeds(user_id)
+    if seeds is None:
+        return "No seeds yet. Buy some from the shop!"
+    out = list(f"{plants_dict.get(key, {'name':"Unknown"}).get('name', 'Unnamed')} ({key}): {seeds[key]}" for key in seeds.keys())
+    out = out.__str__().replace(r"', '", "\n").replace("-1", "∞").strip(r"[']")
+    return out
+
+def get_farm_embed(user_id:int, username:str, user:discord.User) -> list[dict]:
+    meta = get_meta(user_id)
+    embed = discord.Embed(title=f"{username}'s Shed", color=0x66ff66)
+    embed.set_thumbnail(url=user.avatar.url)
+    embed.add_field(name="Farms owned:", value=meta.get("farm_plots", None), inline=False)
+    embed.add_field(name="Money:", value=meta.get("money", 0), inline=False)
+    embed.add_field(name="Seeds owned:", value=get_seeds_formatted(user_id), inline=False)
+    return [{"type":"message","message":"","embed":embed}]
+
+def put_farm(user_id:int, idx:int, farm:dict) -> bool:
+    try:
+        data = get_data(user_id)
+        with open(get_path(user_id), "w") as file:
+            data["farm"][idx] = farm
+            json.dump(data,file)
+        return True
+    except Exception as e:
+        return False

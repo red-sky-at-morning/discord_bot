@@ -10,7 +10,7 @@ from shop import shop
 with open("meta/params.json", "r") as params:
     params_json = json.load(params)
     cmd_prefix:str = params_json.get("cmd_prefix")
-    dev_id = params_json.get("dev_id")
+    dev_ids = params_json.get("dev_ids")
 
 def handle_message(message: discord.Message, content:str, channel_id, user_id:int, server:int, **kwargs) -> list[dict]:
     if not content:
@@ -29,7 +29,7 @@ def dev_commands(command:list[str], message:discord.Message, channel_id:int, use
     response:list = []
     if command[0][0] != cmd_prefix:
         return response
-    if user_id != dev_id:
+    if user_id not in dev_ids:
         return response
     match command[0][1:]:
         case "toggle-error-standby":
@@ -38,7 +38,7 @@ def dev_commands(command:list[str], message:discord.Message, channel_id:int, use
         case "mode":
             response += [{"type":"mode","mode":command[1].upper()},{"type":"message","message":f"Switching to {command[1].upper()} mode..."}]
         case "echo":
-            response += [{"type":"message","message":command[-1].removeprefix(f"{cmd_prefix}echo ")},{"type":"delete","message":message.id,"channel":message.channel.id}]
+            response += [{"type":"message","message":command[-1].removeprefix(f"{cmd_prefix}echo").strip()},{"type":"delete","message":message.id,"channel":message.channel.id}]
         case "farm":
             response += farm.handle(command, user_id, str(message.author), message)
     return response
@@ -92,16 +92,19 @@ def multi_args_m(command:list[str], message:discord.Message, channel_id:int, use
         case "fish":
             response += fish.handle(command, user_id, str(message.author), message)
         case "shop":
-            if len(command) == 2:
-                response += shop.get_shop_message(user_id, "fish")
-            else:
+            # if len(command) == 2:
+            #     response += shop.get_shop_message(user_id, "fish")
+            # else:
                 response += shop.get_shop_message(user_id, command[1])
         case "inv":
             if len(command) < 3:
                 response += ([{"type":"message","message":"Sorry, I can't tell what command you're trying to use. Try >inv fish"}])
             elif (len(command) == 3):
-                if command[1] == "fish":
-                    response += inventories.get_fish_embed(user_id, message.author.name, message.author)
+                match command[1]:
+                    case "fish":
+                        response += inventories.get_fish_embed(user_id, message.author.name, message.author)
+                    case "farm":
+                        response += inventories.get_farm_embed(user_id, message.author.name, message.author)
             elif (len(command) > 3):
                 try:
                     response += inventories.read_range_fish_from_inventory(user_id, message.author.name, message.author, (int(command[2])-1)*20, 20)
