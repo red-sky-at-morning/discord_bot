@@ -38,7 +38,7 @@ def get_roll_message(size:int, iters:int, bonus, filters:str) -> list[dict]:
             filtered_rolls.remove(item)
         if item == 1:
             r_string = f"*{r_string}*"
-        if item == size:
+        elif item == size:
             r_string = f"**{r_string}**"
         out_str = out_str + (f"{r_string}, ") + ("\n" if (idx+1)%15 == 0 else "")
     out_str = out_str.strip(", \n")
