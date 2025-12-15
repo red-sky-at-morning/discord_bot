@@ -65,34 +65,46 @@ def get_trailing_number(s):
     return int(m.group()) if m else None
 
 class Filters:
+    def shallowcopy(func):
+        def wrapper(input:list[int], dummy:int):
+            input = input.copy()
+            return func(input, dummy)
+        return wrapper
 
+    @shallowcopy
     def keep_highest(input:list[int], keeps:int):
         return input[-keeps:]
 
+    @shallowcopy
     def keep_lowest(input:list[int], keeps:int):
         return input[:keeps]
     
+    @shallowcopy
     def drop_lowest(input:list[int], drops:int):
         return input[drops:]
     
+    @shallowcopy
     def drop_highest(input:list[int], drops:int):
         return input[:-drops]
     
+    @shallowcopy
     def keep_above(input:list[int], threshold:int):
         return list([i for i in input if i > threshold])
     
+    @shallowcopy
     def keep_below(input:list[int], threshold:int):
         return list([i for i in input if i < threshold])
 
+    @shallowcopy
     def chance(input:list[int], chance:int):
         chance = chance/100.0
-        out = input.copy()
-        for item in out:
+        for item in input:
             rand = random.random()
             if rand > chance:
-                out.remove(item)
-        return out
+                input.remove(item)
+        return input
     
+    @shallowcopy
     def always(input:list[int], dummy):
         return input
     
