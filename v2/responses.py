@@ -6,6 +6,7 @@ from inventories import inventories
 from farming import farm
 from fishing import fish
 from shop import shop
+from roll import roll
 
 with open("meta/params.json", "r") as params:
     params_json = json.load(params)
@@ -113,6 +114,10 @@ def multi_args_m(command:list[str], message:discord.Message, channel_id:int, use
         case "role":
             if command[1] == "add":
                 response += [{"type":"role","role":command[2],"user":command[3]}]
+        case "roll":
+            return roll.parse(command[1:])
+        case "r":
+            return roll.parse(command[1:])
     return response
 
 responses = ("You called?", "haiiiiii", "OwO", "UwU", "Fuck off", "Bitch", "I'M HERE", ":3", "At least take me to dinner first", "You what", "Find my pages")
