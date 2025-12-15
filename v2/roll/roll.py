@@ -25,6 +25,9 @@ def get_roll_message(size:int, iters:int, bonus, filters:str) -> list[dict]:
     rolls, filtered_rolls = roll(size, iters, filter, get_trailing_number(filters))
 
     tot = sum(filtered_rolls) + bonus
+    funny_numbers = (69, 420)
+    if tot in funny_numbers:
+        tot = f"{tot}. nice"
 
     out_str = ""
     for idx, item in enumerate(rolls):
