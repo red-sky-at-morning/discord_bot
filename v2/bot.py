@@ -157,6 +157,9 @@ class Bot(discord.Client):
         # Don't respond to our own reacts
         if user == self.user:
             return False
+        # Don't respond to bots/webhooks
+        if message.author.bot:
+            return
 
         character:discord.PartialEmoji = payload.emoji
         try:
@@ -178,6 +181,9 @@ class Bot(discord.Client):
     async def on_message(self, message:discord.Message):
         # Don't respond to our own messages
         if message.author == self.user:
+            return
+        # Don't respond to bots/webhooks
+        if message.author.bot:
             return
 
         # Get data from the message

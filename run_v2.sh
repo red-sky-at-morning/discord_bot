@@ -1,3 +1,3 @@
-cd ~/VSCode/discord.py/discord_bot/v2
-. ../bin/activate
+cd /eclipsebot/discord_bot/v2
+. ../venv/bin/activate
 python3 ./bot.py
