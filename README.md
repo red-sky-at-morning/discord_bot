@@ -11,7 +11,12 @@ This repo is missing a couple key components of Eclipsebot, namely its bot token
 - create a file called `TOKEN.txt` at `/meta/`
 - paste your new bot token into that file
 - import the requirements by running `pip3 import -r requirements.txt`
-- run bot.py
+- run `python3 bot.py`
+
+Some parameters are also defined in `/meta/params.json`, including:
+- where the aioconsole starts (server and channel)
+- prefix for commands
+- ids that are allowed to use restricted commands
 
 If you do choose to clone this repo and have any trouble, please contact me on discord (@midnight__sun).
 
