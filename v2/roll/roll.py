@@ -95,7 +95,7 @@ def get_randomized_array_message(items:list[str], picks:int) -> list[dict]:
         out_str = out_str + (f"{r_string}, ") + ("\n" if (idx+1)%15 == 0 else "")
     out_str = out_str.strip(", \n")
 
-    embed = discord.Embed(description=f"Randomized the list [{', '.join(items)}] and got **{desc_str}**")
+    embed = discord.Embed(description=f"Randomized the list [{', '.join(items)}]{f' and got **{desc_str}**' if picks != 0 else ""}")
     embed.add_field(name="Items",value=out_str)
 
     print(f"results:{randomized}, {filtered_randomized}")
