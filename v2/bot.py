@@ -3,7 +3,8 @@ import discord
 from discord.ext import commands
 import asyncio
 import responses
-from inventories import inventories
+import bot_actions
+import builtins
 
 import sys
 args = sys.argv[1:]
@@ -86,56 +87,34 @@ class Bot(discord.Client):
                 continue
             match item.get("type", None):
                 case "message":
-                    self.last_sent_message = await channel.send(item.get("message","No message provided"), embed=item.get("embed", None))
-                    print(f"Said {item.get('message','No message provided')} {'(with embed)' if item.get("embed", None) is not None else ""} in {channel.name} in {channel.guild.name}")
+                    await bot_actions.message(self, item, channel)
                 case "reply":
-                    await channel.send(item.get("message","No message provided"), reference=item.get("reply", self.last_sent_message), embed=item.get("embed", None))
-                    print(f"Said {item.get('message','No message provided')} {'(with embed)' if item.get("embed", None) is not None else ""} in {channel.name} in {channel.guild.name}")
+                    await bot_actions.reply(self, item, channel)
                 case "react":
-                    message:discord.Message = item.get("message", self.last_sent_message)
-                    if type(item.get("react")) == discord.PartialEmoji:
-                        await message.add_reaction(item.get("react"))
-                    else:
-                        for char in item.get("react"):
-                            await message.add_reaction(char)
-                    print(f"Reacted to {message.content} (by {message.author}) in {message.channel} in {message.channel.guild} with {item.get('react')}")
+                    await bot_actions.react(self, item, channel)
                 case "role":
-                    try:
-                        role = channel.guild.get_role(int(item.get("role").strip("@&<>")))
-                        user = await channel.guild.fetch_member(int(item.get("user").strip("@<>")))
-                        if user is None:
-                            await channel.send("No user found!")
-                        await user.add_roles(role)
-                        await channel.send(f"Added role with ID {role.id} to user <@{user.id}>")
-                    except discord.errors.PrivilegedIntentsRequired:
-                        await channel.send("You do not have permission to add roles to users")
-                    except ValueError:
-                        await channel.send("That is not a valid ID!")
+                    await bot_actions.role(self, item, channel)
                 case "delete":
-                    try:
-                        temp_channel = await self.fetch_channel(item.get("channel"))
-                        message = await channel.fetch_message(item.get("message"))
-                        await message.delete()
-                    except discord.errors.PrivilegedIntentsRequired:
-                        await channel.send("You do not have permission to delete messages")
+                    await bot_actions.delete(self, item, channel)
                 case "wait":
-                    print(f"Sleeping for {item.get('time', 0)} seconds...")
-                    await asyncio.sleep(item.get("time"))
+                    await bot_actions.wait(self, item, channel)
                 case "store":
-                    path = item.get("path")
-                    store = item.get("extra")
-                    store["id"] = self.last_sent_message.id
-                    inventories.add_meta(item.get("id"), item.get("name"), store)
+                    await bot_actions.write(self, item, channel)
                 case "error":
-                    error = item.get("error")
-                    print(f"Raising error {error}")
-                    raise error
+                    await bot_actions.error(self, item, channel)
                 case "mode":
                     await self.switch_mode(item.get("mode"))
-                case "input":
-                    msg = await self.wait_for(item.get("wait_type"), check=item.get("check"))
-                    func = item.get("call", lambda x:None)
-                    response.append(await func(msg.author.id, msg))
+                case "call":
+                    resp = await bot_actions.call(self, item, channel)
+                    if (item.get("kill") and not resp):
+                        return
+                    match type(resp):
+                        case builtins.dict:
+                            response.append(resp)
+                        case builtins.list:
+                            response += resp
+                        case _:
+                            continue
                 case "special":
                     match item.get("action"):
                         case "toggle_error_standby":

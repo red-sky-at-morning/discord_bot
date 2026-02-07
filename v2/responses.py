@@ -77,12 +77,12 @@ def single_args_m(command:str, message:discord.Message, channel_id:int, user_id:
             response.append({"type":"message","message":"Goodbye world!"})
             response.append({"type":"delete","message":message.id, "channel":message.channel.id})
         case "test8":
-            async def repeat_user_input(user_id:int, message:discord.Message):
+            async def repeat_user_input(self, user_id:int, message:discord.Message):
                 return ({"type":"message","message":message.content})
             def check(user_id:int):
                 return lambda m: m.author.id==user_id
             response.append({"type":"message","message":"Awaiting further input..."})
-            response.append({"type":"input","wait_type":"message","check":check(user_id),"call":repeat_user_input})
+            response.append({"type":"call","wait_type":"message","check":check(user_id),"call":repeat_user_input})
     return response
 
 def multi_args_m(command:list[str], message:discord.Message, channel_id:int, user_id:int, server:int) -> list[dict]:
