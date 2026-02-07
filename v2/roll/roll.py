@@ -2,23 +2,41 @@ from queue import Full
 import random
 import re
 import discord
+import math
 
 # >roll [n]d[n] [filters]
 def parse(command:list[str]) -> list[dict]:
-    iters, size = command[0].split("d")
-    filter_str = command[1] if len(command) > 2 else ""
-    
-    try:
-        iters = int(iters)
-        if len(size.split("+")) > 1:
-            bonus = int(size.split("+")[1])
+    if command[0].startswith("["):
+        m = re.search(r"\[(.*)\]", command[-1])
+        if m:
+            items = m.group(1).split(", ")
         else:
-            bonus = 0
-        size = int(size.split("+")[0])
-    except ValueError:
-        return [{"type":"message","message":"I don't know how to read that roll! Try >roll 3d20"}]
+            return[{"type":"message","message":"I don't know how to randomize those items! Try >roll [one, two, three]"}]
+        picks = 1
+
+        if len(command) > len(items)+1:
+            try:
+                picks = int(command[-2])
+            except ValueError:
+                return[{"type":"message","message":f"I don't know how to randomize those items! Try >roll [one, two, three]"}]
+        
+        return get_randomized_array_message(items, picks)
+
+    else:
+        iters, size = command[0].split("d")
+        filter_str = command[1] if len(command) > 2 else ""
     
-    return get_roll_message(size, iters, bonus, filter_str)
+        try:
+            iters = int(iters)
+            if len(size.split("+")) > 1:
+                bonus = int(size.split("+")[1])
+            else:
+                bonus = 0
+            size = int(size.split("+")[0])
+        except ValueError:
+            return [{"type":"message","message":"I don't know how to read that roll! Try >roll 3d20"}]
+    
+        return get_roll_message(size, iters, bonus, filter_str)
 
 def get_roll_message(size:int, iters:int, bonus, filters:str) -> list[dict]:
     filter = Filters.get_filter_from_string(filters.strip("1234567890"))
@@ -43,7 +61,7 @@ def get_roll_message(size:int, iters:int, bonus, filters:str) -> list[dict]:
         out_str = out_str + (f"{r_string}, ") + ("\n" if (idx+1)%15 == 0 else "")
     out_str = out_str.strip(", \n")
 
-    embed = discord.Embed(color = discord.Color.random(), description=f"Rolled {iters}d{size}{f'+{bonus}' if bonus else ''} and got **{tot}**")
+    embed = discord.Embed(description=f"Rolled {iters}d{size}{f'+{bonus}' if bonus else ''} and got **{tot}**")
     embed.add_field(name="Rolls",value=out_str)
 
     return [{"type":"message","message":"","embed":embed}]
@@ -62,6 +80,36 @@ def roll(size:int, iter:int, filter, val:int) -> tuple[list[int]]:
     print(f"filtered with filter {filter.__name__}: {filtered}")
 
     return (out, filtered)
+
+def get_randomized_array_message(items:list[str], picks:int) -> list[dict]:
+    randomized, filtered_randomized = randomize(items, picks)
+
+    desc_str = ", ".join(filtered_randomized)
+
+    out_str = ""
+    for idx, item in enumerate(randomized):
+        r_string = item
+        if item in filtered_randomized:
+            r_string = f"**{r_string}**"
+            filtered_randomized.remove(item)
+        out_str = out_str + (f"{r_string}, ") + ("\n" if (idx+1)%15 == 0 else "")
+    out_str = out_str.strip(", \n")
+
+    embed = discord.Embed(description=f"Randomized the list [{', '.join(items)}] and got **{desc_str}**")
+    embed.add_field(name="Items",value=out_str)
+
+    print(f"results:{randomized}, {filtered_randomized}")
+    return [{"type":"message","message":"","embed":embed}]
+
+def randomize(items:list[str], picks:int) -> tuple[list[str]]:
+    print(f"picking {picks} items from array {items}")
+    out = items.copy()
+    
+    for idx in range(len(items)-1, 0, -1):
+        new_idx = random.randint(0, idx)
+        out[idx], out[new_idx] = out[new_idx], out[idx]
+    
+    return (out, out[:picks])
 
 def get_trailing_number(s):
     m = re.search(r'\d+$', s)

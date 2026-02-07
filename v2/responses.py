@@ -136,7 +136,6 @@ def handle_react(message:discord.Message, emoji:discord.PartialEmoji, count, cha
 
     return response
 
-
 def make_sale(message:discord.Message, emoji:discord.PartialEmoji, channel_id, user_id, server) -> list[dict]:
     if shop.is_sale(user_id, message.id):    
         if emoji.name == "❎":

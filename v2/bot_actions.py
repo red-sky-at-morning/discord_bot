@@ -4,11 +4,11 @@ from inventories import inventories
 
 async def message(self, item:list[dict]|None, channel:discord.TextChannel):
     self.last_sent_message = await channel.send(item.get("message","No message provided"), embed=item.get("embed", None))
-    print(f"Said {item.get('message','No message provided')} {'(with embed)' if item.get("embed", None) is not None else ""} in {channel.name} in {channel.guild.name}")
+    print(f"Said {item.get('message','No message provided')}{' (with embed)' if item.get("embed", None) is not None else ""} in {channel.name} in {channel.guild.name}")
 
 async def reply(self, item:list[dict]|None, channel:discord.TextChannel):
     await channel.send(item.get("message","No message provided"), reference=item.get("reply", self.last_sent_message), embed=item.get("embed", None))
-    print(f"Said {item.get('message','No message provided')} {'(with embed)' if item.get("embed", None) is not None else ""} in {channel.name} in {channel.guild.name}")
+    print(f"Said {item.get('message','No message provided')}{' (with embed)' if item.get("embed", None) is not None else ""} in {channel.name} in {channel.guild.name}")
 
 async def react(self, item:list[dict]|None, channel:discord.TextChannel):
     message:discord.Message = item.get("message", self.last_sent_message)
