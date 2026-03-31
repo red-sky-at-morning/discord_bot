@@ -123,8 +123,8 @@ def multi_args_m(command:list[str], message:discord.Message, channel_id:int, use
 
 def april_fools_random(date:str) -> float:
     rand = random.random()
-    # if date == '04-01':
-    if True:
+    if date == '04-01':
+    # if True:
         rand /= 10
     return rand
 
