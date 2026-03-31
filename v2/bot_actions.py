@@ -16,7 +16,8 @@ async def react(self, item:list[dict]|None, channel:discord.TextChannel):
         await message.add_reaction(item.get("react"))
     else:
         for char in item.get("react"):
-            await message.add_reaction(char)
+            emoji = discord.PartialEmoji.from_str(char)
+            await message.add_reaction(emoji)
     print(f"Reacted to {message.content} (by {message.author}) in {message.channel} in {message.channel.guild} with {item.get('react')}")
 
 async def role(self, item:list[dict]|None, channel:discord.TextChannel):
@@ -34,15 +35,21 @@ async def role(self, item:list[dict]|None, channel:discord.TextChannel):
 
 async def delete(self, item:list[dict]|None, channel:discord.TextChannel):
     try:
-        temp_channel = await self.fetch_channel(item.get("channel"))
-        message = await channel.fetch_message(item.get("message"))
+        if not item.get("self", False):
+            message = await channel.fetch_message(item.get("message"))
+        else:
+            message = self.last_sent_message
         await message.delete()
     except discord.errors.PrivilegedIntentsRequired:
         await channel.send("You do not have permission to delete messages")
 
 async def wait(self, item, channel):
     print(f"Sleeping for {item.get('time', 0)} seconds...")
-    await asyncio.sleep(item.get("time"))
+    if item.get("typing", False):
+        async with channel.typing():
+            await asyncio.sleep(item.get("time"))
+    else:
+        await asyncio.sleep(item.get("time"))
 
 async def write(self, item, channel):
     path = item.get("path")
@@ -64,4 +71,3 @@ async def call(self, item, channel) -> int:
 
     func = item.get("call", lambda x:None)
     return await func(self, msg.author.id, msg)
-    

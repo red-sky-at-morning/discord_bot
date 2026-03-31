@@ -24,3 +24,6 @@ Talents (BREAKING UPDATE)
   - Fish sell for more
 - Gambler
   - Makes all random rolls 0(75%) or 1(25%)
+
+Misc
+- Rewrite the console module?? why did i write it like this

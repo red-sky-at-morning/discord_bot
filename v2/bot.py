@@ -16,7 +16,7 @@ if ("--interactable" in args) or ("-i" in args):
 class Bot(discord.Client):
     def __init__(self, intents:discord.Intents, interactive:bool):
         super().__init__(intents=intents)
-        self.starting_mode = "HYBRID"        
+        self.starting_mode = "TESTING"        
         self.starting_server = None
         self.starting_channel = None
 
@@ -32,7 +32,7 @@ class Bot(discord.Client):
         self.ignore_errors:bool = True
 
         self.author:discord.User
-        self.last_sent_message:discord.Message
+        self.last_sent_message:discord.Message = None
 
     async def on_ready(self):
         with open("meta/params.json", "r") as params:
