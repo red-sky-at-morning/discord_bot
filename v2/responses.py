@@ -125,7 +125,7 @@ def april_fools_random(date:str) -> float:
     rand = random.random()
     if date == '04-01':
     # if True:
-        rand /= 10
+        rand /= 20
     return rand
 
 responses = ("You called?", "haiiiiii", "OwO", "UwU", "Fuck off", "Bitch", "I'M HERE", ":3", "At least take me to dinner first", "You what", "Find my pages")
@@ -137,10 +137,10 @@ def message_responses(command:list[str], message:discord.Message, channel_id:int
     # have to define these in the function becuase of variables,, ugh
     # wish i knew how template strings worked... </3
     unprompted_responses = (
-        [{"type":"wait","time":5,"chance":0.005},{"type":"react","react":"✈🏢","message":message}],
-        [{"type":"message","message":"https://tenor.com/view/skeleton-running-past-gif-3044631603201692058","chance":0.005},{"type":"wait","time":4},{"type":"delete","self":True}],
-        [{"type":"message","message":"Your car is on fire!\nEclipsebot            april foul","chance":0.005},{"type":"wait","time":15},{"type":"delete","self":True}],
-        [{"type":"wait","time":30,"typing":True,"chance":0.01}]
+        [{"type":"wait","time":5,"chance":0.0005},{"type":"react","react":"✈🏢","message":message}],
+        [{"type":"message","message":"https://tenor.com/view/skeleton-running-past-gif-3044631603201692058","chance":0.0005},{"type":"wait","time":4},{"type":"delete","self":True}],
+        [{"type":"message","message":"Your car is on fire!\nEclipsebot            april foul","chance":0.0005},{"type":"wait","time":15},{"type":"delete","self":True}],
+        [{"type":"wait","time":30,"typing":True,"chance":0.001}]
     )
 
     date = datetime.datetime.today().strftime("%m-%d")
