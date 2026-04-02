@@ -134,21 +134,21 @@ def message_responses(command:list[str], message:discord.Message, channel_id:int
     if mentioned:
         response += [{"type":"message","message":responses[random.randint(0,len(responses)-1)]}]
     
-    # have to define these in the function becuase of variables,, ugh
-    # wish i knew how template strings worked... </3
-    unprompted_responses = (
-        [{"type":"wait","time":5,"chance":0.0005},{"type":"react","react":"✈🏢","message":message}],
-        [{"type":"message","message":"https://tenor.com/view/skeleton-running-past-gif-3044631603201692058","chance":0.0005},{"type":"wait","time":4},{"type":"delete","self":True}],
-        [{"type":"message","message":"Your car is on fire!\nEclipsebot            april foul","chance":0.0005},{"type":"wait","time":15},{"type":"delete","self":True}],
-        [{"type":"wait","time":30,"typing":True,"chance":0.001}]
-    )
+    # # have to define these in the function becuase of variables,, ugh
+    # # wish i knew how template strings worked... </3
+    # unprompted_responses = (
+    #     [{"type":"wait","time":5,"chance":0.0005},{"type":"react","react":"✈🏢","message":message}],
+    #     [{"type":"message","message":"https://tenor.com/view/skeleton-running-past-gif-3044631603201692058","chance":0.0005},{"type":"wait","time":4},{"type":"delete","self":True}],
+    #     [{"type":"message","message":"Your car is on fire!\nEclipsebot            april foul","chance":0.0005},{"type":"wait","time":15},{"type":"delete","self":True}],
+    #     [{"type":"wait","time":30,"typing":True,"chance":0.001}]
+    # )
 
-    date = datetime.datetime.today().strftime("%m-%d")
-    # random responses, 10x as likely on april 1st
-    for item in unprompted_responses:
-        chance = item[0].get("chance", 0)
-        if april_fools_random(date) < chance:
-            response += item
+    # date = datetime.datetime.today().strftime("%m-%d")
+    # # random responses, 10x as likely on april 1st
+    # for item in unprompted_responses:
+    #     chance = item[0].get("chance", 0)
+    #     if april_fools_random(date) < chance:
+    #         response += item
 
     return response
 
